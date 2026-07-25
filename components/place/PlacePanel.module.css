@@ -1,0 +1,259 @@
+/* Header — swatch · serif name + alias subtitle · type seal · close */
+.header {
+    position: relative;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 16px 18px 14px;
+    border-bottom: 1px solid var(--gold-line);
+    background:
+        linear-gradient(180deg, rgba(201, 162, 75, 0.08), transparent),
+        var(--codex-bg);
+}
+
+.swatch {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    flex: 0 0 11px;
+    align-self: center;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6), 0 0 10px currentColor;
+}
+
+.heading {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 30px;
+    line-height: 1.05;
+    letter-spacing: 0.4px;
+    color: #fff;
+}
+
+.subtitle {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 13px;
+    color: var(--ink-muted);
+}
+
+.type {
+    align-self: center;
+    font-size: 10px;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 600;
+    padding: 4px 9px;
+    border: 1px solid var(--gold-line);
+    border-radius: 2px;
+    background: var(--gold-soft);
+    white-space: nowrap;
+}
+
+.body {
+    flex: 1;
+    min-height: 200px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.body::-webkit-scrollbar {
+    width: 9px;
+}
+
+.body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.body::-webkit-scrollbar-thumb {
+    background: var(--gold-line);
+    border-radius: 4px;
+}
+
+.body::-webkit-scrollbar-thumb:hover {
+    background: var(--gold);
+}
+
+/* Status / empty states */
+.status {
+    padding: 40px 20px;
+    text-align: center;
+    font-family: var(--font-serif);
+    font-style: italic;
+    color: var(--ink-muted);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.muted {
+    font-size: 11px;
+    font-style: normal;
+    opacity: 0.7;
+}
+
+/* Redirect-stub note (a renamed/respelled place with no entry of its own) */
+.redirect {
+    padding: 44px 24px;
+    text-align: center;
+    font-family: var(--font-serif);
+}
+
+.redirect p {
+    margin: 0 0 6px;
+    font-size: 15px;
+}
+
+.redirect strong {
+    color: var(--gold);
+    font-weight: 600;
+}
+
+.redirect a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.redirect a:hover {
+    text-decoration: underline;
+}
+
+.mutedLine {
+    color: var(--ink-muted);
+    font-style: italic;
+}
+
+.mutedLine strong {
+    color: #e9dcbd;
+    font-style: normal;
+}
+
+/* Two-column grid: prose (left) + stat rail (right) */
+.grid {
+    display: block;
+}
+
+.hasRail {
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+    align-items: start;
+}
+
+.prose {
+    padding: 22px 26px 26px;
+    font-family: var(--font-serif);
+    font-size: 15px;
+    line-height: 1.62;
+    color: var(--parchment);
+}
+
+.prose > div > :first-child {
+    margin-top: 0;
+}
+
+.prose p {
+    margin: 0 0 12px;
+}
+
+.prose b,
+.prose strong {
+    color: #fff;
+    font-weight: 600;
+}
+
+.prose i,
+.prose em {
+    color: #f2ead6;
+}
+
+.prose h2,
+.prose h3 {
+    font-family: var(--font-display);
+    margin: 22px 0 8px;
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--gold);
+    letter-spacing: 0.3px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--border);
+}
+
+/* Links now point at the live wiki — mark them as
+   outbound rather than letting them read as in-app navigation. */
+.prose a {
+    color: var(--gold);
+    text-decoration: none;
+    border-bottom: 1px dotted var(--gold-line);
+}
+
+.prose a:hover {
+    border-bottom-style: solid;
+}
+
+/* Pull-quotes (Fandom .frquote: two .quotesymbol marks + .quotetext). The
+   original flex CSS is gone, so the bare marks would stack — render it as a
+   gold-ruled pull-quote and drop the stray symbol divs. */
+.prose :global(.frquote) {
+    margin: 16px 0;
+    padding: 2px 0 2px 18px;
+    border-left: 2px solid var(--gold-line);
+}
+
+.prose :global(.quotesymbol) {
+    display: none;
+}
+
+.prose :global(.quotetext) {
+    font-style: italic;
+    color: #f2ead6;
+}
+
+.prose :global(.quotetext) i {
+    font-style: italic;
+}
+
+.prose :global(.quotesource) {
+    margin-top: 6px;
+    font-size: 13px;
+    font-style: normal;
+    color: var(--ink-muted);
+}
+
+.prose table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-serif);
+    font-size: 12.5px;
+    margin: 8px 0 12px;
+}
+
+.prose th,
+.prose td {
+    padding: 4px 8px;
+    border: 1px solid var(--border);
+    text-align: left;
+}
+
+.prose th {
+    color: var(--gold);
+    font-weight: 600;
+}
+
+/* Stack to a single column on narrow viewports */
+@media (max-width: 720px) {
+    .hasRail {
+        display: block;
+    }
+
+    .name {
+        font-size: 25px;
+    }
+}

@@ -1,0 +1,14 @@
+.DS_Store
+node_modules/
+dist/
+dev-dist/
+.vite/
+__pycache__/
+
+# tile-regeneration build artifacts (scripts/tiles/run_cleanup.sh)
+scripts/tiles/source-map/
+scripts/tiles/Tiles_clean/
+scripts/tiles/.venv/
+.venv
+.next/
+next-env.d.ts

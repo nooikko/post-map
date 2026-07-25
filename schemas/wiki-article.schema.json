@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/nooikko/post-map/main/schemas/wiki-article.schema.json",
+  "title": "WikiArticle",
+  "description": "Single wiki entry for a map marker. One file per marker name. The same shape is used for successful fetches, missing wiki pages, and transport errors so consumers don't branch on response form.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["name", "status", "html", "title", "pageId", "error", "source"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Marker name. Matches the value used in data/Faerun/<layer>.json properties.name and is the lookup key the frontend uses to find this file."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["ok", "missing", "error"],
+      "description": "ok = article fetched and html is non-null. missing = wiki returned a missingtitle/similar 'no such page' error. error = transport or unexpected response failure."
+    },
+    "title": {
+      "type": ["string", "null"],
+      "description": "Canonical wiki title for the article, null when status != ok."
+    },
+    "pageId": {
+      "type": ["integer", "null"],
+      "description": "MediaWiki page id, null when status != ok."
+    },
+    "html": {
+      "type": ["string", "null"],
+      "description": "Sanitized article HTML ready to inject into the popup. Image-bearing markup has already been stripped. Null when status != ok."
+    },
+    "error": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["code", "info"],
+      "properties": {
+        "code": { "type": "string" },
+        "info": { "type": "string" }
+      },
+      "description": "Populated when status != ok. code is the MediaWiki/HTTP error code; info is a human-readable message."
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["wiki", "url", "fetchedAt"],
+      "properties": {
+        "wiki": {
+          "type": "string",
+          "description": "Wiki host (e.g. forgottenrealms.fandom.com)."
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Full URL the article was fetched from (MediaWiki action=parse endpoint)."
+        },
+        "fetchedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO-8601 UTC timestamp of when this file was written."
+        }
+      }
+    }
+  }
+}

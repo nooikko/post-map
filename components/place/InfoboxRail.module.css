@@ -1,0 +1,115 @@
+.rail {
+    align-self: stretch;
+    padding: 20px 22px 24px;
+    background: var(--codex-rail);
+    border-left: 1px solid var(--gold-line);
+}
+
+.group {
+    margin-bottom: 18px;
+}
+
+.group:last-child {
+    margin-bottom: 0;
+}
+
+.heading {
+    margin: 0 0 9px;
+    font-family: var(--font-serif);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+    color: var(--gold);
+}
+
+.heading::after {
+    content: '';
+    display: block;
+    height: 1px;
+    margin-top: 6px;
+    background: linear-gradient(90deg, var(--gold-line), transparent);
+}
+
+.field {
+    margin-bottom: 11px;
+}
+
+.field:last-child {
+    margin-bottom: 0;
+}
+
+.label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--ink-muted);
+    margin-bottom: 3px;
+}
+
+.value {
+    font-family: var(--font-serif);
+    font-size: 13.5px;
+    line-height: 1.45;
+    color: var(--parchment);
+}
+
+/* Fixed track + pct columns so every row's bar lines up regardless of how
+   wide the percentage label is (e.g. "85%" vs "6%"). */
+.bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 72px 34px;
+    align-items: center;
+    gap: 8px;
+    margin: 4px 0;
+}
+
+.barName {
+    font-size: 12.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.barTrack {
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+}
+
+.barFill {
+    display: block;
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--gold), #e6c878);
+}
+
+.barPct {
+    font-size: 11px;
+    color: var(--ink-muted);
+    white-space: nowrap;
+    text-align: right;
+}
+
+.line {
+    padding: 1px 0;
+}
+
+.line + .line {
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 4px;
+    margin-top: 4px;
+}
+
+.chip {
+    display: inline-block;
+    margin: 0 4px 4px 0;
+    padding: 2px 8px;
+    font-size: 11.5px;
+    border: 1px solid var(--gold-line);
+    border-radius: 11px;
+    background: var(--gold-soft);
+    color: #e9dcbd;
+}

@@ -1,0 +1,46 @@
+/* Quiet enough not to compete with the article, prominent enough to be real
+   attribution — the wiki's complaint about earlier mirrors was a link
+   "in the corner" too small to find. */
+.credit {
+    grid-column: 1 / -1;
+    margin: 4px 24px 22px;
+    padding-top: 12px;
+    border-top: 1px solid var(--gold-line);
+    font-family: var(--font-serif);
+    font-size: 12px;
+    line-height: 1.55;
+    color: var(--ink-muted);
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.credit a {
+    color: var(--gold);
+    text-decoration: none;
+    border-bottom: 1px solid var(--gold-line);
+}
+
+.credit a:hover {
+    color: #e9dcbd;
+    border-bottom-color: var(--gold);
+}
+
+.line {
+    display: block;
+}
+
+.stamp {
+    display: block;
+    font-style: italic;
+    font-size: 11px;
+    opacity: 0.75;
+}
+
+/* Narrow viewports: the panel goes single-column, so match its padding. */
+@media (max-width: 700px) {
+    .credit {
+        margin-left: 16px;
+        margin-right: 16px;
+    }
+}
