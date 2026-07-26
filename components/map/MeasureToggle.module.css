@@ -1,0 +1,76 @@
+/*
+ * Measure toggle, stacked directly above the zoom control in the bottom-right.
+ *
+ * Geometry comes from the --map-control-* tokens in app/globals.css, which the
+ * zoom control also reads, so the two stay aligned and the same width without
+ * either one hard-coding the other's size.
+ *
+ * The surface deliberately matches .ol-zoom rather than the sidebar: it sits on
+ * the map art, where a translucent fill would pick up parchment in one place
+ * and dark ocean in another.
+ */
+.toggle {
+    position: absolute;
+    right: var(--map-control-inset);
+    bottom: calc(
+        var(--map-control-inset) + var(--map-control-zoom-h) + var(--map-control-gap)
+    );
+    z-index: 400;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: calc(var(--map-control-btn) + 2px);
+    height: calc(var(--map-control-btn) + 2px);
+    padding: 0;
+
+    background: #2c2c2c;
+    color: var(--panel-fg);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 4px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+
+    font: inherit;
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    transition:
+        background 120ms ease,
+        border-color 120ms ease,
+        color 120ms ease;
+}
+
+.toggle:hover {
+    background: #565656;
+    color: #fff;
+}
+
+.toggle:active {
+    background: #6a6a6a;
+}
+
+.toggle:focus {
+    outline: none;
+}
+
+.toggle:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* Pressed state has to read at a glance while the map is being clicked on. */
+.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+}
+
+.active:hover {
+    background: #5b9ae8;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .toggle {
+        transition: none;
+    }
+}

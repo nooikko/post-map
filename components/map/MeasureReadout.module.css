@@ -1,0 +1,72 @@
+/*
+ * Running distance readout, centred along the bottom of the viewport, with
+ * Clear attached to it — the action sits next to the thing it acts on rather
+ * than in the sidebar.
+ */
+.readout {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 600;
+
+    display: flex;
+    align-items: stretch;
+    /* The pill must not swallow map clicks; only Clear takes pointer events. */
+    pointer-events: none;
+
+    background: rgba(20, 20, 20, 0.94);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    overflow: hidden;
+}
+
+.distance {
+    padding: 8px 14px;
+    font-size: 13px;
+    color: var(--panel-fg);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.clear {
+    pointer-events: auto;
+    padding: 8px 14px;
+    border: 0;
+    border-left: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    transition:
+        background 120ms ease,
+        color 120ms ease;
+}
+
+.clear:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--panel-fg);
+}
+
+.clear:active {
+    background: rgba(255, 255, 255, 0.14);
+}
+
+.clear:focus {
+    outline: none;
+}
+
+.clear:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .clear {
+        transition: none;
+    }
+}

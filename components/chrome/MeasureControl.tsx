@@ -1,8 +1,5 @@
 'use client';
 
-import { useMapCore } from '@/components/map/MapContext';
-import { useMeasureStore } from '@/components/map/measureStore';
-import { useMeasureTool } from '@/components/map/useMeasureTool';
 import { setUnit, useUnit, type DistanceUnit } from '@/lib/settings/units';
 
 import { SectionHeading } from './SectionHeading';
@@ -12,39 +9,26 @@ const UNITS: Array<{ value: DistanceUnit; label: string }> = [
     { value: 'km', label: 'Kilometres' },
 ];
 
+/**
+ * Measurement settings.
+ *
+ * The tool's own controls are on the map, not here: the toggle sits with the
+ * zoom buttons in the bottom-right (components/map/MeasureToggle.tsx) and Clear
+ * is attached to the distance readout (components/map/MeasureReadout.tsx). What
+ * stays in the sidebar is the preference that outlives any one measurement.
+ *
+ * useMeasureTool is deliberately NOT called here. It owns OpenLayers
+ * interactions and overlays and must be instantiated exactly once, which
+ * MapShell now does.
+ */
 export function MeasureControl() {
-    const core = useMapCore();
-    const { toggle, clear } = useMeasureTool(core);
-    const { active, readout } = useMeasureStore();
     const unit = useUnit();
 
     return (
         <div>
-            <SectionHeading>Tools</SectionHeading>
+            <SectionHeading>Measurement</SectionHeading>
 
-            <button
-                type="button"
-                onClick={toggle}
-                aria-pressed={active}
-                className={`mb-1.5 flex w-full cursor-pointer items-center gap-2 rounded-[5px] border px-2.5 py-2 text-left text-[13px] ${
-                    active
-                        ? 'border-accent bg-accent/18 text-white'
-                        : 'border-edge bg-white/4 text-panel-fg hover:bg-white/8'
-                }`}
-            >
-                <span className="text-[15px]">📏</span>
-                <span>Measure distance</span>
-            </button>
-
-            <button
-                type="button"
-                onClick={clear}
-                className="mb-1.5 flex w-full cursor-pointer items-center rounded-[5px] border border-transparent px-2.5 py-1 text-left text-[12px] text-muted hover:text-panel-fg"
-            >
-                Clear
-            </button>
-
-            <label className="mt-3.5 flex items-center justify-between gap-2 px-1 text-[12px] text-muted">
+            <label className="flex items-center justify-between gap-2 px-1 text-[12px] text-muted">
                 <span>Units</span>
                 <select
                     value={unit}
@@ -58,12 +42,6 @@ export function MeasureControl() {
                     ))}
                 </select>
             </label>
-
-            {readout && (
-                <div className="pointer-events-none fixed bottom-6 left-1/2 z-600 -translate-x-1/2 rounded-md border border-edge bg-[#141414]/94 px-3.5 py-2 text-[13px] text-panel-fg shadow-[0_6px_20px_rgba(0,0,0,0.4)] tabular-nums">
-                    {readout}
-                </div>
-            )}
         </div>
     );
 }

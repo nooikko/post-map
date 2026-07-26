@@ -34,6 +34,17 @@
     --topbar-h: 40px;
     --sidebar-w: 280px;
 
+    /*
+     * Map control geometry, shared between OpenLayers' zoom control (styled in
+     * this file) and the measure toggle stacked above it (a CSS Module). Both
+     * read these so the stack stays aligned from one place.
+     */
+    --map-control-inset: 12px;
+    --map-control-btn: 32px;
+    --map-control-gap: 8px;
+    /* Zoom is two buttons plus its 1px top and bottom border. */
+    --map-control-zoom-h: calc(2 * var(--map-control-btn) + 2px);
+
     --gold: #c9a24b;
     --gold-soft: rgba(201, 162, 75, 0.16);
     --gold-line: rgba(201, 162, 75, 0.28);
@@ -107,8 +118,8 @@ body {
 .ol-zoom {
     top: auto !important;
     left: auto !important;
-    right: 12px !important;
-    bottom: 12px !important;
+    right: var(--map-control-inset) !important;
+    bottom: var(--map-control-inset) !important;
     display: flex;
     flex-direction: column;
     /*
@@ -132,8 +143,8 @@ body {
 }
 
 .ol-zoom button {
-    width: 32px;
-    height: 32px;
+    width: var(--map-control-btn);
+    height: var(--map-control-btn);
     padding: 0;
     border: 0;
     border-radius: 0;

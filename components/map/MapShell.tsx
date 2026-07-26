@@ -17,7 +17,10 @@ import type { Marker } from '@/lib/markers/load';
 
 import { MapContext } from './MapContext';
 import styles from './MapShell.module.css';
+import { MeasureReadout } from './MeasureReadout';
+import { MeasureToggle } from './MeasureToggle';
 import { useMarkerInteractions } from './useMarkerInteractions';
+import { useMeasureTool } from './useMeasureTool';
 
 interface MapShellProps {
     markers: Marker[];
@@ -79,6 +82,11 @@ export function MapShell({ markers }: MapShellProps) {
 
     useMarkerInteractions(core, openPlace);
 
+    // Instantiated once, here: the hook owns OpenLayers interactions, a vector
+    // source and overlays, so calling it from both the toggle and the readout
+    // would attach the tool to the map twice.
+    const measure = useMeasureTool(core);
+
     // The sidebar animates its width; OL needs a nudge once the transition has
     // settled or the canvas keeps the old size.
     const toggleSidebar = useCallback(() => {
@@ -100,6 +108,8 @@ export function MapShell({ markers }: MapShellProps) {
                     <Credits />
                 </aside>
                 <div ref={containerRef} className={styles.map} />
+                <MeasureToggle onToggle={measure.toggle} />
+                <MeasureReadout onClear={measure.clear} />
             </div>
         </MapContext.Provider>
     );
