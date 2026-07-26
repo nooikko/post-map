@@ -231,6 +231,16 @@ body.measuring .ol-viewport {
     cursor: crosshair !important;
 }
 
+/*
+ * Over the last vertex (finish) or the first (close the circuit), the click
+ * does something other than drop another point — so it stops being a
+ * crosshair, which means "place something here", and becomes the pointer that
+ * signals a target. The tip beside the cursor says which of the two it is.
+ */
+body.measuring.measuring-vertex .ol-viewport {
+    cursor: pointer !important;
+}
+
 .measure-cursor-tip {
     background: rgba(20, 20, 20, 0.92);
     color: #fff;
@@ -244,4 +254,20 @@ body.measuring .ol-viewport {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
     pointer-events: none;
     transform: translate(10px, -100%);
+    transition: border-color 120ms ease;
+}
+
+/*
+ * While the tip is announcing an action rather than a distance, it switches
+ * from the measuring red to the accent used elsewhere for "this is
+ * interactive", so the change registers even at a glance.
+ */
+.measure-cursor-tip.is-action {
+    border-color: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .measure-cursor-tip {
+        transition: none;
+    }
 }

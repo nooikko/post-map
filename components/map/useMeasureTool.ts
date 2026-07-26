@@ -179,6 +179,7 @@ export function useMeasureTool(core: MapCore | null): MeasureControls {
         const onMove = async (evt: import('ol/MapBrowserEvent.js').default) => {
             if (!useMeasureStore.getState().active || self.coords.length === 0 || !self.source) {
                 self.cursorOverlay?.setPosition(undefined);
+                document.body.classList.remove('measuring-vertex');
                 return;
             }
             const [{ default: Feature }, { default: LineString }] = await Promise.all([
@@ -196,10 +197,29 @@ export function useMeasureTool(core: MapCore | null): MeasureControls {
                     .setCoordinates([last, evt.coordinate]);
             }
 
+            // Signal the two gestures that do something other than add a point.
+            // Same precedence as onClick, so what the cursor promises is what
+            // the click delivers.
+            const n = self.coords.length;
+            const overClose = n >= 3 && nearVertex(self.coords[0], evt);
+            const overFinish = !overClose && nearVertex(self.coords[n - 1], evt);
+            const overVertex = overClose || overFinish;
+
+            document.body.classList.toggle('measuring-vertex', overVertex);
+            self.cursorTip?.classList.toggle('is-action', overVertex);
+
             const segMeters =
                 Math.hypot(evt.coordinate[0] - last[0], evt.coordinate[1] - last[1])
                 * METERS_PER_PIXEL;
-            if (self.cursorTip) self.cursorTip.textContent = formatDistance(segMeters);
+            if (self.cursorTip) {
+                // Over a live vertex the running segment length is beside the
+                // point — say what the click will do instead.
+                self.cursorTip.textContent = overClose
+                    ? 'Click to close'
+                    : overFinish
+                      ? 'Click to finish'
+                      : formatDistance(segMeters);
+            }
             self.cursorOverlay?.setPosition(evt.coordinate);
         };
 
@@ -210,7 +230,7 @@ export function useMeasureTool(core: MapCore | null): MeasureControls {
             }
             self.cursorOverlay?.setPosition(undefined);
             self.dblZoom?.setActive(true);
-            document.body.classList.remove('measuring');
+            document.body.classList.remove('measuring', 'measuring-vertex');
 
             // Window in which onDblClick still swallows the trailing event.
             self.justFinished = true;
@@ -270,7 +290,7 @@ export function useMeasureTool(core: MapCore | null): MeasureControls {
             unsubscribeUnit();
             if (self.cursorOverlay) map.removeOverlay(self.cursorOverlay);
             self.cursorTip?.remove();
-            document.body.classList.remove('measuring');
+            document.body.classList.remove('measuring', 'measuring-vertex');
         };
     }, [core]);
 
@@ -282,7 +302,7 @@ export function useMeasureTool(core: MapCore | null): MeasureControls {
         self.coords = [];
         self.cursorOverlay?.setPosition(undefined);
         self.dblZoom?.setActive(true);
-        document.body.classList.remove('measuring');
+        document.body.classList.remove('measuring', 'measuring-vertex');
         useMeasureStore.setState({ active: false, readout: null });
     }, []);
 
