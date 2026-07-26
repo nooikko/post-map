@@ -38,7 +38,14 @@ const isDev = process.env.NODE_ENV !== 'production';
 
 const CSP = [
     "default-src 'self'",
-    `script-src-elem 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''}`,
+    // `script-src` governs eval(); `script-src-elem` does NOT, and neither does
+    // `default-src` once a more specific directive exists. React's development
+    // build calls eval() to reconstruct callstacks, so dev needs this declared
+    // here specifically — putting 'unsafe-eval' on script-src-elem silently does
+    // nothing. Production omits script-src entirely and falls back to
+    // `default-src 'self'`, which blocks eval, as it should.
+    ...(isDev ? ["script-src 'self' 'unsafe-inline' 'unsafe-eval'"] : []),
+    "script-src-elem 'self' 'unsafe-inline'",
     "script-src-attr 'none'",
     `style-src-elem 'self'${isDev ? " 'unsafe-inline'" : ''}`,
     "style-src-attr 'unsafe-inline'",
