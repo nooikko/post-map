@@ -95,11 +95,10 @@ export function cleanArticle(root: Element, document: Document): void {
     // cheaper and avoids touching markup that no longer exists.
     rewriteLinks(root, document);
 
-    // Fandom ships inline styles that fight our dark theme — strip the ones
-    // that force a light background or a fixed text colour.
-    root.querySelectorAll('[style*="background"], [style*="color"]').forEach((el) => {
-        el.removeAttribute('style');
-    });
+    // Fandom's inline styles fight our dark theme, but nothing is stripped
+    // here: lib/wiki/sanitize.ts drops every style attribute (and every other
+    // non-allowlisted one) on its way out. This function is cosmetic; that one
+    // is the security boundary.
 }
 
 function rewriteLinks(root: Element, document: Document): void {

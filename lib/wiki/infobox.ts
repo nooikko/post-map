@@ -10,6 +10,7 @@
 //   div.pi-data may also sit directly under the aside (ungrouped).
 
 import { normalizedText } from '@/lib/wiki/clean';
+import { serializeProse } from '@/lib/wiki/sanitize';
 import type { InfoboxBar, InfoboxField, InfoboxGroup } from '@/lib/wiki/types';
 
 export interface SplitArticle {
@@ -21,6 +22,14 @@ export interface SplitArticle {
 /**
  * Split a cleaned article into prose and infobox data. Mutates `root` by
  * removing the infobox aside — callers pass a root they own.
+ *
+ * The infobox half needs no sanitizing: parseInfobox reads everything through
+ * normalizedText() and returns plain strings that React escapes. Only the prose
+ * half becomes raw HTML, and serializeProse is what makes it safe to.
+ *
+ * Sanitizing happens here rather than in cleanArticle because the aside must
+ * still be intact when parseInfobox runs — an allowlist applied any earlier
+ * would delete the infobox before it was read.
  */
 export function splitArticle(root: Element): SplitArticle {
     const aside = root.querySelector('aside.portable-infobox');
@@ -30,7 +39,7 @@ export function splitArticle(root: Element): SplitArticle {
     tidyProse(root);
 
     return {
-        proseHtml: root.innerHTML,
+        proseHtml: serializeProse(root),
         groups,
         epithet: primaryAlias(groups),
     };
