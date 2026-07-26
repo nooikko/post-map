@@ -120,6 +120,14 @@ injected markup and the CSP is the backstop, not the reverse. `style-src-attr`
 stays `'unsafe-inline'` because React writes style props as attributes, which
 cannot carry a nonce.
 
+Development relaxes three directives and drops `upgrade-insecure-requests`.
+Next's dev overlay injects its stylesheet into a shadow root at runtime, so
+`style-src-elem` needs `'unsafe-inline'` or the overlay renders as unstyled
+text; Turbopack's HMR evaluates module code and talks over a WebSocket, so
+`script-src-elem` needs `'unsafe-eval'` and `connect-src` needs `ws:`.
+Everything else is identical across both, so development still exercises the
+parts of the policy that can catch a real mistake.
+
 ## Scripts
 
 Both run on `node --experimental-strip-types`.

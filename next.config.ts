@@ -20,22 +20,39 @@ import type { NextConfig } from 'next';
  * nonce. The sanitizer strips every style attribute off wiki prose, so nothing
  * untrusted reaches it.
  */
+/**
+ * Development needs a looser policy than production, and the difference is
+ * narrow and deliberate:
+ *
+ *  - Next's dev overlay (the error/issue panel) injects its stylesheet into a
+ *    shadow root at runtime. `style-src-elem 'self'` blocks that, which leaves
+ *    the overlay rendering as unstyled text rather than a panel.
+ *  - Turbopack's HMR pipeline evaluates module code, so it needs 'unsafe-eval',
+ *    and its update channel is a WebSocket, so it needs ws:.
+ *
+ * Everything else — script-src-attr 'none', frame-ancestors, object-src,
+ * base-uri, form-action — stays identical in both, so development still
+ * exercises the parts of the policy that can actually catch a mistake.
+ */
+const isDev = process.env.NODE_ENV !== 'production';
+
 const CSP = [
     "default-src 'self'",
-    "script-src-elem 'self' 'unsafe-inline'",
+    `script-src-elem 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''}`,
     "script-src-attr 'none'",
-    "style-src-elem 'self'",
+    `style-src-elem 'self'${isDev ? " 'unsafe-inline'" : ''}`,
     "style-src-attr 'unsafe-inline'",
     "img-src 'self' data:",
     "font-src 'self'",
-    "connect-src 'self'",
+    `connect-src 'self'${isDev ? ' ws:' : ''}`,
     "frame-ancestors 'none'",
     "frame-src 'none'",
     "object-src 'none'",
     "base-uri 'none'",
     "form-action 'none'",
     "worker-src 'none'",
-    'upgrade-insecure-requests',
+    // Pointless on http://localhost, and only ever meant for the deployed site.
+    ...(isDev ? [] : ['upgrade-insecure-requests']),
 ].join('; ');
 
 // Applied to every route. Next merges headers across matching entries, so the
