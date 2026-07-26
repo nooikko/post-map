@@ -22,7 +22,7 @@ completed, which left all three pointing at paths that no longer exist. The
 mirror in `public/data/Faerun/wiki/` is the surviving artefact, and it is a
 build input — nothing fetches the wiki at runtime.
 
-`scripts/fetch_redirect_targets.py` is the one live script. Some markers point
+`scripts/fetch-redirect-targets.ts` is the one live script. Some markers point
 at wiki redirect stubs whose real content lives under a renamed title
 (Velprintalar → Veltalar). It scans the mirror for those stubs, fetches any
 target that is missing, and writes it under the *target* name so the build's
@@ -30,15 +30,18 @@ redirect-follow (`lib/wiki/load.ts`) resolves to a full article. It is
 idempotent.
 
 ```bash
-python3 scripts/fetch_redirect_targets.py           # skips targets already present
-python3 scripts/fetch_redirect_targets.py --force
+pnpm fetch:redirects            # skips targets already present
+pnpm fetch:redirects --force    # re-fetch targets already on disk
 ```
 
-Requires `beautifulsoup4`.
+Selectors and the file envelope are shared with the runtime through
+`lib/wiki/mirror.ts`, so the script and the reader cannot disagree about what a
+redirect stub is.
 
 ## Not covered by a schema
 
 The marker GeoJSON in `public/data/Faerun/*.json` has no schema, no stable IDs,
-and encodes its category in the *filename*. See the data section of the root
-[README](../README.md); a planned phase moves the source of truth into SQLite
-and gives it a real one.
+and encodes its category in the *filename*. `lib/markers/load.ts` reads it and
+`lib/slug.ts` derives stable URLs from place names, disambiguating the two
+name collisions with a numeric suffix. See the data section of the root
+[README](../README.md).
