@@ -81,61 +81,111 @@ body {
 }
 
 .ol-control {
-    background: rgba(20, 20, 20, 0.78);
+    background: none;
+    padding: 0;
+}
+
+/*
+ * Zoom: one segmented control in the bottom-right, not two loose buttons in a
+ * translucent tray. OpenLayers ships the tray; we collapse it so the pair reads
+ * as a single instrument sitting on the map, built from the same panel surface
+ * and hairline border as the topbar and sidebar.
+ */
+.ol-zoom {
+    top: auto !important;
+    left: auto !important;
+    right: 12px !important;
+    bottom: 12px !important;
+    display: flex;
+    flex-direction: column;
+    /*
+     * Opaque on purpose. The sidebar and topbar can be translucent because they
+     * sit over flat background; this sits on the map art, where a translucent
+     * surface picks up whatever is beneath it — pale parchment in one place,
+     * dark ocean in another — so both the control and its hover state change
+     * contrast as you pan. A solid surface and a light hairline give it one
+     * appearance everywhere.
+     *
+     * The surface also has to clear --bg (#1a1a1a), which is what shows behind
+     * the map once the view is zoomed out past the image. A near-black control
+     * on a near-black background disappears, so this sits well above both that
+     * and the map art.
+     */
+    background: #2c2c2c;
+    border: 1px solid rgba(255, 255, 255, 0.22);
     border-radius: 4px;
-    padding: 2px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
 }
 
-.ol-control:hover {
-    background: rgba(20, 20, 20, 0.92);
-}
-
-.ol-control button {
-    background: var(--panel);
+.ol-zoom button {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
     color: var(--panel-fg);
-    border: 1px solid var(--border);
-    border-radius: 3px;
     font: inherit;
-    font-size: 16px;
+    font-size: 17px;
     line-height: 1;
-    width: 24px;
-    height: 24px;
     cursor: pointer;
+    transition:
+        background 120ms ease,
+        color 120ms ease;
 }
 
-.ol-control button:hover,
-.ol-control button:focus {
-    background: #2a2a2a;
+/* The divider belongs between the buttons, not around each one. */
+.ol-zoom button + button {
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+/* Solid steps rather than translucent washes, so the jump is the same size
+   wherever the control happens to be sitting. */
+.ol-zoom button:hover {
+    background: #565656;
+    color: #fff;
+}
+
+.ol-zoom button:active {
+    background: #6a6a6a;
+}
+
+.ol-zoom button:focus {
     outline: none;
 }
 
+.ol-zoom button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+}
+
+/*
+ * The map bottoms out at a fit-to-viewport minZoom, so zoom-out spends real
+ * time disabled. Say so rather than letting a dead button look live.
+ */
+.ol-zoom button:disabled {
+    color: #6f6f6f;
+    background: transparent;
+    cursor: default;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ol-zoom button {
+        transition: none;
+    }
+}
+
+/*
+ * No tile source declares `attributions`, so OpenLayers renders this control as
+ * an empty box — which would now sit under the zoom control. The attribution
+ * this project actually owes is a licence condition and lives where it can be
+ * read: components/chrome/Credits.tsx for the WotC fan-content and tile notices,
+ * components/place/ArticleCredit.tsx for per-article CC BY-SA. Hiding an empty
+ * box changes nothing about that.
+ */
 .ol-attribution {
-    bottom: 4px !important;
-    right: 4px !important;
-    background: rgba(0, 0, 0, 0.55) !important;
-    color: var(--muted) !important;
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    font-size: 11px;
-}
-
-.ol-attribution ul,
-.ol-attribution li {
-    color: var(--muted);
-}
-
-.ol-attribution a {
-    color: var(--accent);
-}
-
-.ol-attribution button {
     display: none;
-}
-
-.ol-zoom {
-    top: 8px !important;
-    right: 8px !important;
-    left: auto !important;
 }
 
 /* Marker hover label */
