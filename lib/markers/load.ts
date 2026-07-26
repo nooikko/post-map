@@ -46,6 +46,25 @@ async function readLayer(key: LayerKey): Promise<Array<{ name: string; category:
 
 let cached: Promise<Marker[]> | null = null;
 
+// Slug collisions are a build-integrity check: they mean two places share a
+// URL stem, and a *new* one would silently shift an existing permalink. So the
+// warning belongs in `next build`, where it is read once.
+//
+// It is suppressed in dev. Module-scope state resets whenever Next re-evaluates
+// server modules, and dev spreads requests across worker processes that don't
+// share a globalThis, so there is no guard that gets this to "once" — it just
+// reprints on navigation and buries the request log.
+const WARNED = Symbol.for('postmap.markers.warned');
+
+function warnOnce(message: string): void {
+    if (process.env.NODE_ENV === 'development') return;
+    const scope = globalThis as unknown as Record<symbol, Set<string> | undefined>;
+    const seen = (scope[WARNED] ??= new Set<string>());
+    if (seen.has(message)) return;
+    seen.add(message);
+    console.warn(message);
+}
+
 /**
  * All markers, in a deterministic order: layer render order (LAYERS), then
  * source-file order within each layer. Slug assignment depends on this order,
@@ -67,7 +86,7 @@ async function buildMarkers(): Promise<Marker[]> {
         // both stay reachable. Surfaced so a new collision can't slip in
         // unnoticed and silently shift an existing permalink.
         const detail = collisions.map((c) => `${c.name} -> ${c.slug}`).join(', ');
-        console.warn(`[markers] ${collisions.length} slug collision(s) disambiguated: ${detail}`);
+        warnOnce(`[markers] ${collisions.length} slug collision(s) disambiguated: ${detail}`);
     }
 
     return entries.map(({ item, slug }) => ({ slug, ...item }));

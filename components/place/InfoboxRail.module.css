@@ -28,7 +28,7 @@
     display: block;
     height: 1px;
     margin-top: 6px;
-    background: linear-gradient(90deg, var(--gold-line), transparent);
+    background: var(--gold-line);
 }
 
 .field {
@@ -75,7 +75,6 @@
     height: 6px;
     border-radius: 3px;
     background: rgba(255, 255, 255, 0.12);
-    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25);
     overflow: hidden;
 }
 
@@ -83,7 +82,7 @@
     display: block;
     height: 100%;
     border-radius: 3px;
-    background: linear-gradient(90deg, var(--gold), #e6c878);
+    background: var(--gold);
 }
 
 .barPct {

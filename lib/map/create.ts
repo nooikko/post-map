@@ -37,6 +37,10 @@ import type { Marker } from '@/lib/markers/load';
 const TILE_SIZE = 256;
 const EXTENT: [number, number, number, number] = [0, 0, IMG_W, IMG_H];
 
+function clamp(value: number, min: number, max: number): number {
+    return Math.min(Math.max(value, min), max);
+}
+
 // resolutions[z] = projection units per pixel at zoom z. At NATIVE_ZOOM the
 // coordinate space is 1:1 with image pixels.
 function makeResolutions(): number[] {
@@ -124,11 +128,38 @@ export function createMapCore(target: HTMLElement, markers: readonly Marker[]): 
 
     const layers = buildMarkerLayers(map, markers);
 
+    // The viewport has no size until the container is laid out, so the first
+    // successful call is also the one that sizes the initial view.
+    let hasFitted = false;
+
     function applyFitConstraints(): void {
         const size = map.getSize();
         if (!size || size[0] === 0 || size[1] === 0) return;
+
         const fitZoom = fitZoomFor(size as [number, number], NATIVE_ZOOM);
-        view.setMinZoom(Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, fitZoom)));
+
+        // Floor for zooming out. This MUST be a whole number: when a View is
+        // built with a `resolutions` array, OpenLayers derives maxResolution by
+        // indexing `resolutions[minZoom]`, and a fractional index yields
+        // undefined — which collapses the resolution constraint, makes
+        // view.isDef() false, and stops the map rendering at all, silently.
+        //
+        // Flooring the exact fit already leaves room to pull back past it. The
+        // previous `- 1` on top of that allowed a further halving, which is how
+        // the map ended up adrift in a field of background.
+        const floorZoom = clamp(Math.floor(fitZoom), MIN_ZOOM, MAX_ZOOM);
+        view.setMinZoom(floorZoom);
+
+        if (!hasFitted) {
+            hasFitted = true;
+            // The initial zoom, unlike minZoom, may be fractional: setZoom goes
+            // through getResolutionForZoom, which interpolates between tile
+            // levels. So the opening view can fit the window exactly rather
+            // than snapping down to a whole level and shrinking by up to half.
+            view.setZoom(clamp(fitZoom, floorZoom, MAX_ZOOM));
+            view.setCenter([IMG_W / 2, IMG_H / 2]);
+        }
+
         clampView(map, view);
     }
 

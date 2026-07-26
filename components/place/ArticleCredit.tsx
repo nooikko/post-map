@@ -19,7 +19,6 @@ interface ArticleCreditProps {
  * EVERY view of an article. Both the standalone page and the intercepted modal
  * render this same component precisely so the two cannot drift apart — do not
  * inline a copy of it in either route.
- *
  */
 export function ArticleCredit({ meta }: ArticleCreditProps) {
     const page = meta.title || meta.name;

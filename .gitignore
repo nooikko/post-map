@@ -12,3 +12,4 @@ scripts/tiles/.venv/
 .venv
 .next/
 next-env.d.ts
+tsconfig.tsbuildinfo

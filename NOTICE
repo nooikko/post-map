@@ -1,0 +1,43 @@
+Post Map
+========
+
+This file is generated from lib/attribution.ts by scripts/gen-notice.mjs.
+Edit that module, then run `pnpm notice`.
+
+The MIT licence in LICENSE covers this project's own source code. It does NOT
+cover the map artwork or the article text, each of which is governed by its own
+terms below.
+
+
+Article text — Forgotten Realms Wiki
+--------------------------------------------------------------------------
+Place articles are mirrored from https://forgottenrealms.fandom.com/ and are licensed under
+CC BY-SA 3.0:
+
+    https://creativecommons.org/licenses/by-sa/3.0/
+
+Article text on this site remains available under that same licence
+(share-alike). Every article view carries an attribution line naming the source
+article, linking back to it, and disclosing that the text has been modified: we
+strip images, drop the reference apparatus, and truncate appendix sections.
+
+
+Map artwork — Wizards of the Coast
+--------------------------------------------------------------------------
+Post Map is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC.
+
+This site is not affiliated with, endorsed, sponsored, or specifically approved by Wizards of the Coast LLC.
+
+Use of the underlying Faerûn map artwork is governed by the Fan Content Policy:
+
+    https://company.wizards.com/en/legal/fancontentpolicy
+
+That policy requires this project to remain free to access. It is permission
+rather than a licence, and may be withdrawn at any time.
+
+
+Tile pyramid
+--------------------------------------------------------------------------
+The tiles served here were cut by this project from the same Wizards of the
+Coast map described above. The artwork in them is theirs, and the Fan Content
+Policy above is what governs their use.

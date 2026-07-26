@@ -7,12 +7,10 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "dev:vite": "vite --open",
-    "build:vite": "vite build"
+    "notice": "node --experimental-strip-types scripts/gen-notice.mjs",
+    "notice:check": "node --experimental-strip-types scripts/gen-notice.mjs --check"
   },
   "dependencies": {
-    "@fontsource/cormorant-garamond": "^5.2.11",
-    "@fontsource/spectral": "^5.2.8",
     "linkedom": "^0.18.13",
     "next": "^16.2.12",
     "ol": "^10",
@@ -26,16 +24,11 @@
     "@types/react-dom": "^19.2.3",
     "postcss": "^8.5.23",
     "tailwindcss": "^4.3.3",
-    "typescript": "^6.0.3",
-    "vite": "^6",
-    "vite-plugin-pwa": "^0.21",
-    "workbox-precaching": "^7",
-    "workbox-routing": "^7",
-    "workbox-strategies": "^7"
+    "typescript": "^6.0.3"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
-      "esbuild"
+      "sharp"
     ]
   }
 }

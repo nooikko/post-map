@@ -2,11 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(pnpm typecheck)",
-      "Bash(pnpm lint)",
       "Bash(pnpm build)",
-      "Bash(pnpm check)",
       "Bash(pnpm dev)",
       "Bash(pnpm install)",
+      "Bash(pnpm notice)",
+      "Bash(pnpm notice:check)",
       "Bash(git status)",
       "Bash(git diff:*)",
       "Bash(git log:*)",

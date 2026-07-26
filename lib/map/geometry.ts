@@ -49,12 +49,28 @@ export function clampCenter(center: Coord, resolution: number, size: [number, nu
 }
 
 /**
- * Zoom level at which the whole image just fits the viewport, minus one level
- * of breathing room. The view is built with a fixed `resolutions` array, so
- * this must be an integer index into it.
+ * Resolution at which the whole image exactly fits the viewport — the tighter
+ * axis wins, so nothing is cropped.
+ *
+ * The map is 4763 × 3185 (1.50:1), close enough to a typical window that "fit"
+ * and "fill" land within a few percent of each other; fitting is preferred
+ * because it never hides part of the map.
+ */
+export function fitResolutionFor(size: [number, number]): number {
+    const [vw, vh] = size;
+    return Math.max(IMG_W / vw, IMG_H / vh);
+}
+
+/**
+ * Exact (fractional) zoom at which the whole image fits the viewport.
+ *
+ * Deliberately not rounded. Snapping down to an integer zoom level costs up to
+ * a factor of two in scale, which is what left the map floating in a sea of
+ * background on first load. The view's `resolutions` array defines the tile
+ * levels, not the set of zooms the view may hold — OpenLayers interpolates
+ * between them, so a fractional zoom is legitimate and renders from the
+ * nearest tile level.
  */
 export function fitZoomFor(size: [number, number], nativeZoom: number): number {
-    const [vw, vh] = size;
-    const fitRes = Math.max(IMG_W / vw, IMG_H / vh);
-    return Math.floor(nativeZoom - Math.log2(fitRes)) - 1;
+    return nativeZoom - Math.log2(fitResolutionFor(size));
 }

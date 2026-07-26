@@ -1,5 +1,5 @@
-backend/
+# Build inputs and tooling that the deployed site never serves.
+# public/ (tiles + data) is read at build time and must NOT be listed here.
 scripts/
 schemas/
-server.py
 .claude/

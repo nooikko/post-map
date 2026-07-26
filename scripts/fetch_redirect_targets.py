@@ -24,8 +24,9 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 
 ROOT = Path(__file__).resolve().parent.parent
-FRONT_DIR = ROOT / "public" / "data" / "Faerun" / "wiki"
-BACK_DIR = ROOT / "backend" / "Faerun" / "wiki"
+# public/ is the single store. The old backend/Faerun/wiki mirror was a
+# byte-identical duplicate and has been removed; don't recreate it.
+WIKI_DIR = ROOT / "public" / "data" / "Faerun" / "wiki"
 WIKI_HOST = "forgottenrealms.fandom.com"
 API = f"https://{WIKI_HOST}/api.php"
 UA = "post-map/1.0 (local offline mirror; personal project)"
@@ -69,9 +70,9 @@ def safe_name(name: str) -> bool:
 
 
 def find_missing_targets() -> list[str]:
-    have = {Path(p).stem for p in glob.glob(str(FRONT_DIR / "*.json"))}
+    have = {Path(p).stem for p in glob.glob(str(WIKI_DIR / "*.json"))}
     targets: set[str] = set()
-    for fp in glob.glob(str(FRONT_DIR / "*.json")):
+    for fp in glob.glob(str(WIKI_DIR / "*.json")):
         try:
             with open(fp, encoding="utf-8") as f:
                 art = json.load(f)
@@ -136,10 +137,9 @@ def write(name: str, obj: dict) -> None:
     if not safe_name(name):
         raise ValueError(f"unsafe article name: {name!r}")
     fname = f"{name}.json"
-    for d in (FRONT_DIR, BACK_DIR):
-        d.mkdir(parents=True, exist_ok=True)
-        with open(d / fname, "w", encoding="utf-8") as f:
-            json.dump(obj, f, ensure_ascii=False, separators=(",", ":"))
+    WIKI_DIR.mkdir(parents=True, exist_ok=True)
+    with open(WIKI_DIR / fname, "w", encoding="utf-8") as f:
+        json.dump(obj, f, ensure_ascii=False, separators=(",", ":"))
 
 
 def main() -> int:
