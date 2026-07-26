@@ -21,7 +21,16 @@ interface MeasureInternals {
     dblZoom: import('ol/interaction/DoubleClickZoom.js').default | null;
     cursorOverlay: import('ol/Overlay.js').default | null;
     cursorTip: HTMLDivElement | null;
+    /** Set briefly after finishing, so the trailing dblclick can be swallowed. */
+    justFinished: boolean;
 }
+
+/**
+ * How close a click has to land on an existing vertex to count as hitting it.
+ * Measured in screen pixels rather than map units so the target stays the same
+ * physical size at every zoom level.
+ */
+const VERTEX_HIT_PX = 12;
 
 function totalMeters(coords: number[][]): number {
     let sum = 0;
@@ -46,6 +55,7 @@ export function useMeasureTool(core: MapCore | null): MeasureControls {
         dblZoom: null,
         cursorOverlay: null,
         cursorTip: null,
+        justFinished: false,
     });
 
     useEffect(() => {
@@ -62,6 +72,16 @@ export function useMeasureTool(core: MapCore | null): MeasureControls {
         };
 
         const refresh = () => useMeasureStore.setState({ readout: readout() || null });
+
+        /** Did this click land on the given vertex, within the hit tolerance? */
+        const nearVertex = (
+            coord: number[],
+            evt: import('ol/MapBrowserEvent.js').default,
+        ): boolean => {
+            const pixel = map.getPixelFromCoordinate(coord);
+            if (!pixel) return false;
+            return Math.hypot(pixel[0] - evt.pixel[0], pixel[1] - evt.pixel[1]) <= VERTEX_HIT_PX;
+        };
 
         void (async () => {
             const [
@@ -119,6 +139,29 @@ export function useMeasureTool(core: MapCore | null): MeasureControls {
                     import('ol/geom/LineString.js'),
                 ]);
 
+            const n = self.coords.length;
+
+            // Clicking the first vertex closes the path into a circuit and
+            // finishes. Needs three points to be a circuit rather than a line
+            // retraced over itself. The closing coordinate is appended, so the
+            // returning leg counts toward the total like any other segment.
+            if (n >= 3 && nearVertex(self.coords[0], evt)) {
+                self.coords = [...self.coords, self.coords[0]];
+                (self.line?.getGeometry() as import('ol/geom/LineString.js').default | undefined)
+                    ?.setCoordinates(self.coords);
+                finish();
+                return;
+            }
+
+            // Clicking the point you just placed finishes an open path. This is
+            // also what makes a double-click work: the second click lands on
+            // the vertex the first one placed, so it finishes instead of
+            // stacking a duplicate point.
+            if (n >= 1 && nearVertex(self.coords[n - 1], evt)) {
+                finish();
+                return;
+            }
+
             const coord = evt.coordinate;
             self.coords = [...self.coords, coord];
             self.source.addFeature(new Feature({ geometry: new Point(coord) }));
@@ -169,6 +212,12 @@ export function useMeasureTool(core: MapCore | null): MeasureControls {
             self.dblZoom?.setActive(true);
             document.body.classList.remove('measuring');
 
+            // Window in which onDblClick still swallows the trailing event.
+            self.justFinished = true;
+            window.setTimeout(() => {
+                self.justFinished = false;
+            }, 500);
+
             if (self.coords.length < 2) {
                 hardClear();
                 useMeasureStore.setState({ active: false, readout: null });
@@ -185,12 +234,17 @@ export function useMeasureTool(core: MapCore | null): MeasureControls {
         };
 
         const onDblClick = (evt: import('ol/MapBrowserEvent.js').default) => {
-            if (!useMeasureStore.getState().active) return;
-            // Stop the click that precedes a dblclick from adding a duplicate
-            // point at the same spot.
+            const active = useMeasureStore.getState().active;
+
+            // A double-click now finishes via the vertex hit-test on its second
+            // click, which leaves this event still to be delivered — by which
+            // time finish() has re-enabled DoubleClickZoom. Swallow it, or the
+            // map zooms out from under the measurement that was just completed.
+            if (!active && !self.justFinished) return;
+
             evt.preventDefault();
             evt.stopPropagation();
-            finish();
+            if (active) finish();
         };
 
         const onKey = (e: KeyboardEvent) => {
@@ -246,7 +300,7 @@ export function useMeasureTool(core: MapCore | null): MeasureControls {
         document.body.classList.add('measuring');
         useMeasureStore.setState({
             active: true,
-            readout: 'Click to start · double-click to finish · Esc to cancel',
+            readout: 'Click to add points · last point finishes, first closes · Esc to cancel',
         });
     }, [clear]);
 
