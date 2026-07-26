@@ -1,6 +1,19 @@
 @import 'tailwindcss';
 
 /*
+ * OpenLayers' own stylesheet, imported here rather than from
+ * components/map/MapShell.tsx so that the cascade order is ours to decide.
+ *
+ * Imported from the component, Next emits it as a separate stylesheet *after*
+ * this one, and `.ol-control button` then outranks our `.ol-zoom button` on
+ * source order at equal specificity — silently reverting the zoom control's
+ * size and its white default background, leaving only the :hover/:disabled
+ * rules (which carry an extra pseudo-class) still applying. Keeping it first
+ * in this file means our overrides below simply win.
+ */
+@import 'ol/ol.css';
+
+/*
  * Design tokens, carried over from the Vite app's css/app.css.
  *
  * Two palettes live here: the neutral dark chrome (topbar, sidebar, controls)

@@ -3,7 +3,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import 'ol/ol.css';
+// ol/ol.css is imported from app/globals.css, not here — see the note there.
+// Importing it from this component puts it after globals in the cascade, which
+// reverts our zoom control styling.
 
 import { Credits } from '@/components/chrome/Credits';
 import { LayerToggles } from '@/components/chrome/LayerToggles';
