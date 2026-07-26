@@ -56,7 +56,7 @@ export function PlaceSearch({ markers, onSelect }: PlaceSearchProps) {
     const shown = matches.slice(0, MAX_RESULTS);
 
     return (
-        <div className="mb-4.5">
+        <div>
             <SectionHeading>Search</SectionHeading>
             <input
                 type="search"

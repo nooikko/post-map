@@ -18,7 +18,7 @@ import { SectionHeading } from './SectionHeading';
  */
 export function Credits() {
     return (
-        <div className="mt-5 border-t border-edge pt-3">
+        <div className="border-t border-edge pt-4">
             <SectionHeading>Credits &amp; licence</SectionHeading>
 
             <p className="mb-2 text-[11px] leading-relaxed text-muted">

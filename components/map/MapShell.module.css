@@ -14,9 +14,20 @@
     -webkit-backdrop-filter: blur(8px);
     border-right: 1px solid var(--border);
     z-index: 450;
-    padding: 14px 16px;
+    padding: 16px;
     overflow-y: auto;
     transition: transform 180ms ease;
+}
+
+/*
+ * One rhythm for the whole sidebar, set here rather than by each section
+ * carrying its own margin. Previously only PlaceSearch had a bottom margin and
+ * SectionHeading's top margin was cancelled by `first:mt-0` — every heading is
+ * the first child of its own section wrapper — so Tools ran straight into
+ * Layers with nothing between them.
+ */
+.sidebar > * + * {
+    margin-top: 26px;
 }
 
 .map {

@@ -44,7 +44,7 @@ export function MeasureControl() {
                 Clear
             </button>
 
-            <label className="mt-1 flex items-center justify-between gap-2 px-1 text-[12px] text-muted">
+            <label className="mt-3.5 flex items-center justify-between gap-2 px-1 text-[12px] text-muted">
                 <span>Units</span>
                 <select
                     value={unit}

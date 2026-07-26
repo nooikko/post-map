@@ -32,7 +32,7 @@ export function LayerToggles() {
     return (
         <div>
             <SectionHeading>Layers</SectionHeading>
-            <div className="flex flex-col gap-0.5">
+            <div className="flex flex-col gap-1">
                 {LAYERS.map((def) => (
                     <label
                         key={def.key}
