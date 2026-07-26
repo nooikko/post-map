@@ -2,4 +2,5 @@
 # public/ (tiles + data) is read at build time and must NOT be listed here.
 scripts/
 schemas/
+docs/
 .claude/
