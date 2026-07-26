@@ -8,7 +8,8 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "notice": "node --experimental-strip-types scripts/gen-notice.mjs",
-    "notice:check": "node --experimental-strip-types scripts/gen-notice.mjs --check"
+    "notice:check": "node --experimental-strip-types scripts/gen-notice.mjs --check",
+    "fetch:redirects": "node --experimental-strip-types scripts/fetch-redirect-targets.ts"
   },
   "dependencies": {
     "linkedom": "^0.18.13",
