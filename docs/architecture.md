@@ -56,9 +56,9 @@ The projection is a **custom pixel CRS**: coordinates are raw image pixels
 against a 4763 × 3185 source image, not longitude/latitude. `lib/map/geometry.ts`
 holds that math with no OpenLayers dependency, so it is testable and reusable in
 isolation. `lib/map/config.ts` pins everything tied to the specific pyramid —
-image dimensions, zoom range, per-zoom tile bounds, and `METERS_PER_PIXEL`
-(1287.473), the scale the distance tool measures against. Changing any of it
-means regenerating tiles.
+image dimensions (4763 × 3185), zoom range, the tile URL template, and
+`METERS_PER_PIXEL` (1287.473), the scale the distance tool measures against.
+Changing any of it means regenerating tiles.
 
 Tiles are a z0–z6 pyramid of 512px @2x WebP over a 256px logical grid, served
 from `/tiles/{z}/{x}/{y}.webp` with a one-year immutable cache. They are

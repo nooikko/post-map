@@ -8,7 +8,8 @@ body:
         Ideas are welcome. Worth knowing up front: this is a personal project
         built for one gaming table, and the scope is deliberately small — so a
         good idea may still be declined as out of scope rather than as a bad
-        idea. See [CONTRIBUTING.md](../blob/main/CONTRIBUTING.md).
+        idea. See
+        [CONTRIBUTING.md](https://github.com/nooikko/post-map/blob/main/CONTRIBUTING.md).
 
   - type: textarea
     id: problem
