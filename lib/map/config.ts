@@ -1,6 +1,6 @@
 // Static configuration for the Faerûn map.
 // Tied to the specific tile pyramid and source image — do not change without
-// regenerating tiles and re-deriving meterPerPixel.
+// regenerating tiles and re-deriving METERS_PER_PIXEL.
 
 export const IMG_W = 4763;
 export const IMG_H = 3185;

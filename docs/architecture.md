@@ -156,10 +156,11 @@ Node does not resolve the `@/` path alias, so anything a script imports must be
 dependency-free. That is why `lib/attribution.ts` and `lib/wiki/mirror.ts`
 import nothing — keep it that way or the scripts stop running.
 
-`lib/wiki/mirror.ts` holds what the mirror's reader and writer must agree on
-(the redirect selector, image-drop lists, the file envelope). If the fetch
-script's idea of a redirect stub ever diverges from `load.ts`'s, the script
-fetches targets the runtime will never follow.
+`lib/wiki/mirror.ts` holds what the mirror's reader and writer must agree on:
+the redirect selector, the image-drop lists, and the filename rules
+(`isSafeName`, `isDisambiguation`). If the fetch script's idea of a redirect
+stub ever diverges from `load.ts`'s, the script fetches targets the runtime
+will never follow.
 
 ## Attribution
 
