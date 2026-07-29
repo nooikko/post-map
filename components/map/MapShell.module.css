@@ -15,8 +15,27 @@
     border-right: 1px solid var(--border);
     z-index: 450;
     padding: 16px;
+    /* Clears the GitHub corner, so the credits never run underneath it. */
+    padding-bottom: 92px;
     overflow-y: auto;
     transition: transform 180ms ease;
+}
+
+/*
+ * A sibling of the sidebar rather than a child of it: the sidebar scrolls, and
+ * a corner that scrolls away from its corner is not a corner. Sharing the
+ * sidebar's transform and timing is what makes the two leave as one piece.
+ */
+.corner {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    z-index: 460;
+    transition: transform 180ms ease;
+}
+
+.collapsed .corner {
+    transform: translateX(-100%);
 }
 
 /*

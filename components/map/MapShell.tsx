@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 // reverts our zoom control styling.
 
 import { Credits } from '@/components/chrome/Credits';
+import { GithubCorner } from '@/components/chrome/GithubCorner';
 import { LayerToggles } from '@/components/chrome/LayerToggles';
 import { MeasureControl } from '@/components/chrome/MeasureControl';
 import { PlaceSearch } from '@/components/chrome/PlaceSearch';
@@ -107,6 +108,7 @@ export function MapShell({ markers }: MapShellProps) {
                     <LayerToggles />
                     <Credits />
                 </aside>
+                <GithubCorner className={styles.corner} reachable={sidebarOpen} />
                 <div ref={containerRef} className={styles.map} />
                 <MeasureToggle onToggle={measure.toggle} />
                 <MeasureReadout onClear={measure.clear} />

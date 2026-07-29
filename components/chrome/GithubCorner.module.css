@@ -1,0 +1,88 @@
+/*
+ * The classic GitHub corner, cut for the sidebar's bottom-left rather than a
+ * page's top-right.
+ *
+ * The original (tholman.com/github-corners) is a single 250×250 sprite that
+ * relies on `scale(-1, 1)` to move from the right corner to the left. That
+ * trick does not extend to the bottom: getting the wedge into a bottom corner
+ * needs a vertical flip too, which turns the octocat upside down. So the wedge
+ * and the mark are separate here — the wedge is drawn for this corner and the
+ * mark sits upright on it.
+ *
+ * The original's waving arm is deliberately not carried over. It reaches
+ * down-left out of a top-right wedge; ours would have to reach up-right, which
+ * no transform gives you with the cat still upright, so it means a redrawn arm.
+ * That was tried and dropped — at 26px in a map sidebar the wave reads as fussy
+ * rather than charming. The hover state is the scale nudge plus the wedge
+ * lifting to accent.
+ */
+
+/*
+ * The anchor is a 76×76 box but only the wedge is drawn, so half of it is
+ * transparent — and that half sits over the credits text. Left alone it would
+ * swallow clicks and selections meant for the panel underneath.
+ *
+ * `pointer-events: none` here, `auto` on the drawn shapes, so only the visible
+ * triangle is a target. clip-path would also work and is shorter, but it clips
+ * the focus ring along with everything else, and losing a focus indicator to
+ * fix a hit box is a bad trade. pointer-events is inherited, hence naming the
+ * children explicitly.
+ */
+.corner {
+    display: block;
+    width: 76px;
+    height: 76px;
+    color: var(--panel-fg);
+    pointer-events: none;
+}
+
+.wedge {
+    fill: var(--border);
+    transition: fill 160ms ease;
+    pointer-events: auto;
+}
+
+/*
+ * fill-box, so `center` means the middle of the mark itself. The default
+ * view-box would resolve the origin against the whole 76×76 canvas and drag the
+ * mark off its placement — which is exactly what a transform-origin on the
+ * group carrying the SVG transform attribute did, hanging it off the panel edge.
+ */
+.mark {
+    fill: currentColor;
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform 160ms ease;
+    /* Sits inside the wedge, but the glyph has holes — cover it explicitly. */
+    pointer-events: auto;
+}
+
+.corner:hover .wedge,
+.corner:focus-visible .wedge {
+    fill: var(--accent);
+}
+
+.corner:hover .mark {
+    transform: scale(1.09);
+}
+
+/*
+ * Inset so the ring follows the corner rather than bleeding off the two edges
+ * that sit flush against the viewport, where it would be clipped.
+ */
+.corner:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .wedge,
+    .mark {
+        transition: none;
+    }
+
+    /* The wedge still lifts to accent on hover, so the affordance survives. */
+    .corner:hover .mark {
+        transform: none;
+    }
+}
