@@ -10,6 +10,14 @@ updates:
     commit-message:
       prefix: "chore(deps)"
       include: "scope"
+    ignore:
+      # TypeScript 7 is the native port and does not expose the JS compiler API
+      # that `next build` calls into: "TypeScript 7.0.2 does not provide the
+      # compiler API required by Next.js". Next 16.2.12 wants TS 6 unless
+      # experimental.useTypeScriptCli is set. Hold the major until Next
+      # supports it, rather than reopening a red PR every week.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
     groups:
       # React and its type packages move in lockstep. Ungrouped, a react bump
       # arrives without the matching @types and fails typecheck on its own.
