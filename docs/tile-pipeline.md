@@ -12,9 +12,11 @@ from scratch is the honest option if it ever needs to change.
 
 ## Provenance
 
-Wizards of the Coast published the 3rd-edition Faerûn map.
-This project worked from that map, upscaled it, and cut its own pyramid at
-new boundaries. See `NOTICE` for how that bears on licensing.
+Wizards of the Coast published the 3rd-edition Faerûn map. That map is the source,
+and the only party with rights in it.
+
+This project worked from that map, enhanced it, and cut the pyramid served here.
+See `NOTICE`.
 
 Final pyramid: z0–z6, 1/2/6/20/70/247/950 tiles per level, 512×512 lossy WebP over
 a 256px logical grid, `xyz` scheme.
@@ -68,6 +70,6 @@ pyramid resolved to **xyz**, which is what `lib/map/config.ts` reads.
 
 ## `run_cleanup.sh`
 
-The driver: stage the source map, `python3 -m venv` +
-`pip install pillow numpy`, then the two scripts in sequence. No GDAL, ImageMagick,
-or `cwebp` — all imaging ran in-process through Pillow.
+The driver: stage the source map, `python3 -m venv` + `pip install pillow
+numpy`, then the two scripts in sequence. No GDAL, ImageMagick, or `cwebp` — all
+imaging ran in-process through Pillow.

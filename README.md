@@ -111,7 +111,8 @@ because they are obligations rather than preferences.
 Place articles come from the [Forgotten Realms Wiki](https://forgottenrealms.fandom.com/),
 used under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
 
-The map tiles are this project's own cut of the published Faerûn map. The
-artwork in them is Wizards of the Coast's.
+The map tiles are this project's own cut of the published Faerûn map. The artwork
+in them is Wizards of the Coast's — see [docs/tile-pipeline.md](docs/tile-pipeline.md)
+for how the pyramid was produced.
 
 Full attributions are in [NOTICE](NOTICE).

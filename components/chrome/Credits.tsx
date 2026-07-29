@@ -1,6 +1,5 @@
 import {
     NON_AFFILIATION_NOTICE,
-    TILE_SOURCE,
     WIKI_HOST,
     WIKI_LICENSE,
     WIKI_NAME,
@@ -10,9 +9,9 @@ import {
 import { SectionHeading } from './SectionHeading';
 
 /**
- * Site-wide credits. Covers the two obligations that aren't per-article: the
- * WotC fan-content notice (which must appear verbatim on pages showing their
- * material) and tile provenance.
+ * Site-wide credits. Covers the obligations that aren't per-article: the WotC
+ * fan-content notice, which must appear verbatim on pages showing their
+ * material, and where the tiles came from.
  *
  * The per-article CC BY-SA credit lives in components/place/ArticleCredit.tsx.
  */
@@ -31,7 +30,8 @@ export function Credits() {
             </p>
 
             <p className="mb-2 text-[11px] leading-relaxed text-muted">
-                Map tiles derived from <Ext href={TILE_SOURCE.url}>{TILE_SOURCE.label}</Ext>.
+                Map tiles were cut by this project from the published Faerûn map. The
+                artwork is Wizards of the Coast&rsquo;s.
             </p>
 
             {/* Required verbatim — set apart so it reads as a legal notice

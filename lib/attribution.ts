@@ -8,8 +8,8 @@
 //      Policy — requires the verbatim unofficial-content notice, and the site
 //      must stay free to access.
 //   3. The tile pyramid is this project's own cut of that same WotC map, so
-//      obligation 2 is what governs it too. There is one rights holder in
-//      the map: Wizards of the Coast.
+//      obligation 2 is what governs it too. There is exactly one rights holder
+//      in the map: Wizards of the Coast.
 //
 // This module is data + pure helpers only. The rendering lives in
 // components/place/ArticleCredit.tsx and components/chrome/Credits.tsx so that
@@ -25,11 +25,6 @@ export const WIKI_NAME = 'Forgotten Realms Wiki';
 export const WIKI_LICENSE = {
     label: 'CC BY-SA 3.0',
     url: 'https://creativecommons.org/licenses/by-sa/3.0/',
-} as const;
-
-export const TILE_SOURCE = {
-    label: 'Wizards of the Coast',
-    url: 'https://company.wizards.com/en/legal/fancontentpolicy',
 } as const;
 
 export const REPO_URL = 'https://github.com/nooikko/post-map';
