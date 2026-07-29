@@ -12,7 +12,7 @@
  * Diacritics are folded rather than encoded so URLs stay readable:
  * "Khôltar" → "kholtar", not "kh%C3%B4ltar".
  */
-export function slugify(name: string): string {
+function slugify(name: string): string {
     return name
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '') // strip combining marks

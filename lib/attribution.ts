@@ -60,7 +60,7 @@ export function articleUrl(pageName: string): string {
 }
 
 /** ISO timestamp → "17 May 2026". Returns '' for missing/unparseable input. */
-export function formatSyncDate(iso: string | null | undefined): string {
+function formatSyncDate(iso: string | null | undefined): string {
     if (!iso) return '';
     const d = new Date(iso);
     if (Number.isNaN(d.getTime())) return '';

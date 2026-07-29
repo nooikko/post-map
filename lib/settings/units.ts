@@ -33,7 +33,7 @@ function current(): DistanceUnit {
     return unit;
 }
 
-export function getUnit(): DistanceUnit {
+function getUnit(): DistanceUnit {
     return current();
 }
 

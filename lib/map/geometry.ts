@@ -51,7 +51,7 @@ export function clampCenter(center: Coord, resolution: number, size: [number, nu
  * and "fill" land within a few percent of each other; fitting is preferred
  * because it never hides part of the map.
  */
-export function fitResolutionFor(size: [number, number]): number {
+function fitResolutionFor(size: [number, number]): number {
     const [vw, vh] = size;
     return Math.max(IMG_W / vw, IMG_H / vh);
 }

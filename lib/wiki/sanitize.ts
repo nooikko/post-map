@@ -73,7 +73,7 @@ export function serializeProse(root: Element): string {
 }
 
 /** Apply the allowlist to `root`'s subtree. Exported for tests and audits. */
-export function sanitizeTree(root: Element): void {
+function sanitizeTree(root: Element): void {
     dropComments(root);
 
     // Document order, so a parent is decided before its children. Removing a

@@ -127,7 +127,7 @@ function rewriteLinks(root: Element, document: Document): void {
  * Map a MediaWiki href to an absolute URL, or null when the link should be
  * unwrapped to plain text.
  */
-export function resolveHref(href: string): string | null {
+function resolveHref(href: string): string | null {
     if (!href) return null;
 
     // Anchors point into sections we may have removed.

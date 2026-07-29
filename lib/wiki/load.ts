@@ -52,7 +52,7 @@ function metaFor(article: WikiFile, pageName: string): ArticleMeta {
  *
  * Runs before cleanArticle, which would rewrite the anchor and lose the title.
  */
-export function redirectTarget(html: string): string | null {
+function redirectTarget(html: string): string | null {
     const { root } = parseFragment(html);
     const link = root.querySelector(REDIRECT_SELECTOR);
     if (!link) return null;
