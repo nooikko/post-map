@@ -1,0 +1,77 @@
+name: Bug report
+description: Something is broken — the map, an article, search, or the measure tool
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. If this is a security issue, use
+        [private reporting](https://github.com/nooikko/post-map/security/advisories/new)
+        instead.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Include the exact error text if there is one.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect instead?
+    validations:
+      required: false
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open the map
+        2. Search for Waterdeep and open it
+        3. ...
+    validations:
+      required: true
+
+  - type: input
+    id: url
+    attributes:
+      label: Page URL
+      description: Every place has its own URL, which makes this much faster to chase.
+      placeholder: "https://…/place/waterdeep"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part?
+      options:
+        - Map (pan, zoom, tiles)
+        - Place markers or layer toggles
+        - Article panel or infobox
+        - Search
+        - Measure tool
+        - Attribution or licence notices
+        - Not sure
+    validations:
+      required: true
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and device
+      placeholder: "Firefox 148, Android"
+    validations:
+      required: false
+
+  - type: textarea
+    id: console
+    attributes:
+      label: Browser console output
+      description: Anything red in the devtools console. Rendered as code, so no backticks needed.
+      render: text
+    validations:
+      required: false

@@ -1,0 +1,75 @@
+name: Rights holder request
+description: You hold rights in material used here and want it credited differently or removed
+title: "[rights] "
+labels: ["rights-holder", "priority"]
+assignees: ["nooikko"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This project mirrors material it does not own: the Faerûn map artwork is
+        Wizards of the Coast's, used under the
+        [Fan Content Policy](https://company.wizards.com/en/legal/fancontentpolicy),
+        and place articles come from the Forgotten Realms Wiki under
+        [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
+
+        **If you hold rights in something used here and you would rather it were not,
+        this is the fastest way to reach me.** Attribution mistakes and removal
+        requests are treated as higher priority than any feature or bug, because
+        they are obligations rather than preferences.
+
+        You do not need to prove anything to get a response, and you do not need to
+        use this form at all — a direct request in any form is enough, and the
+        contact address in [SECURITY.md](../blob/main/SECURITY.md) works too. This
+        form just collects what makes it quickest to act on.
+
+        If you would rather not file a public issue, use
+        [private vulnerability reporting](https://github.com/nooikko/post-map/security/advisories/new)
+        instead; it reaches the same person privately.
+
+  - type: dropdown
+    id: request
+    attributes:
+      label: What are you asking for?
+      options:
+        - Removal of the material
+        - A correction to how it is credited
+        - Attribution added where it is missing
+        - Something else (explain below)
+    validations:
+      required: true
+
+  - type: textarea
+    id: material
+    attributes:
+      label: Which material?
+      description: >
+        Page URLs, place names, tile coordinates, or a description — whatever
+        identifies it. "The map artwork generally" is a perfectly fine answer.
+    validations:
+      required: true
+
+  - type: textarea
+    id: rights
+    attributes:
+      label: What is your relationship to the material?
+      description: >
+        Creator, current rights holder, authorised representative, or something
+        else. A short sentence is enough.
+    validations:
+      required: true
+
+  - type: input
+    id: contact
+    attributes:
+      label: How should I reach you?
+      description: Optional. GitHub will notify you on this issue regardless.
+    validations:
+      required: false
+
+  - type: textarea
+    id: detail
+    attributes:
+      label: Anything else
+    validations:
+      required: false

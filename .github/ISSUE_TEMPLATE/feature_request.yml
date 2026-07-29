@@ -1,0 +1,40 @@
+name: Feature request
+description: Suggest something the map should do
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Ideas are welcome. Worth knowing up front: this is a personal project
+        built for one gaming table, and the scope is deliberately small — so a
+        good idea may still be declined as out of scope rather than as a bad
+        idea. See [CONTRIBUTING.md](../blob/main/CONTRIBUTING.md).
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do?
+      description: The problem at the table, not the solution. It often has a simpler answer.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would you like it to do?
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: Constraints this has to live within
+      description: >
+        The site is statically prerendered with no database, no accounts, and no
+        runtime API calls, and the Fan Content Policy requires it stay free to
+        access. Tick these if your idea holds up.
+      options:
+        - label: It works without a server, a login, or storing anything about the user
+          required: false
+        - label: It does not require paying for or gating access
+          required: false

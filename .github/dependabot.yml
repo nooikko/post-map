@@ -1,0 +1,35 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels: ["dependencies"]
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    groups:
+      # React and its type packages move in lockstep. Ungrouped, a react bump
+      # arrives without the matching @types and fails typecheck on its own.
+      react:
+        patterns: ["react", "react-dom", "@types/react", "@types/react-dom"]
+      # Tailwind v4 splits the engine from the PostCSS plugin; they share a
+      # version and break if only one moves.
+      tailwind:
+        patterns: ["tailwindcss", "@tailwindcss/postcss"]
+      minor-and-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels: ["dependencies", "ci"]
+    commit-message:
+      prefix: "ci"
+    groups:
+      actions:
+        patterns: ["*"]

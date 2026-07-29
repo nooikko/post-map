@@ -1,0 +1,16 @@
+# Last matching pattern wins (the opposite of .gitignore).
+
+*                          @nooikko
+
+# The licence, attribution, and security surfaces. Nothing here should change
+# without the maintainer looking at it, because these are obligations rather
+# than preferences.
+/LICENSE                   @nooikko
+/NOTICE                    @nooikko
+/SECURITY.md               @nooikko
+/lib/attribution.ts        @nooikko
+/lib/wiki/sanitize.ts      @nooikko
+/next.config.ts            @nooikko
+
+/.github/CODEOWNERS        @nooikko
+/.github/workflows/        @nooikko

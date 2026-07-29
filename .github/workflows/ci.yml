@@ -1,0 +1,104 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Typecheck & build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          # The mirror scripts use --experimental-strip-types, which needs 22.6+.
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Check NOTICE is in sync
+        run: pnpm notice:check
+
+      # The build is the test suite: it prerenders every place page, so a
+      # broken wiki pipeline or a bad marker file fails here rather than in
+      # production.
+      - name: Build
+        run: pnpm build
+
+  sanitizer:
+    name: Sanitizer holds
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # CONTRIBUTING.md asks contributors to do this by hand. Doing it here too
+      # means a sanitizer regression cannot reach main just because someone
+      # skipped the manual step.
+      # The mirror stores raw wiki HTML under `html`; `proseHtml` is what the
+      # sanitizer produces from it at build time. Poisoning `html` is what
+      # actually exercises the sanitizer. The file has to be status "ok" and
+      # not a redirect stub, or loadArticle bails before sanitizing.
+      - name: Inject hostile markup into one mirrored article
+        run: |
+          node -e '
+            const fs = require("node:fs");
+            const dir = "public/data/Faerun/wiki";
+            const name = fs.readdirSync(dir)
+              .filter((f) => f.endsWith(".json"))
+              .find((f) => {
+                const d = JSON.parse(fs.readFileSync(`${dir}/${f}`, "utf8"));
+                return d.status === "ok" && d.html && !d.html.includes("redirectText");
+              });
+            if (!name) throw new Error("no usable article to poison");
+            const file = `${dir}/${name}`;
+            const doc = JSON.parse(fs.readFileSync(file, "utf8"));
+            doc.html =
+              "<script>alert(1)</script>" +
+              "<img src=x onerror=alert(1)>" +
+              "<a href=\"javascript:alert(1)\">x</a>" +
+              doc.html;
+            fs.writeFileSync(file, JSON.stringify(doc));
+            console.log(`Poisoned ${file}`);
+          '
+
+      - name: Build
+        run: pnpm build
+
+      - name: Assert nothing hostile survived into the prerendered HTML
+        run: |
+          if grep -rniE '<script>alert|onerror=|javascript:alert' .next/server/app/place/; then
+            echo "::error::Sanitizer regression - hostile markup reached the rendered page"
+            exit 1
+          fi
+          echo "Sanitizer held."
