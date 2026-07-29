@@ -32,6 +32,15 @@ export const TILE_SOURCE = {
     url: 'https://company.wizards.com/en/legal/fancontentpolicy',
 } as const;
 
+// Where a rights holder goes to ask for a credit change or a removal. This
+// lives here rather than only in .github/ so that it lands in NOTICE — the one
+// file that travels with a fork or a redistribution, where the issue templates
+// do not.
+export const RIGHTS_CONTACT = {
+    public: 'https://github.com/nooikko/post-map/issues/new?template=rights_holder.yml',
+    private: 'https://github.com/nooikko/post-map/security/advisories/new',
+} as const;
+
 // Verbatim from https://company.wizards.com/en/legal/fancontentpolicy — do not
 // paraphrase; the policy asks for this exact wording.
 export const WOTC_NOTICE =

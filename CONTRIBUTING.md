@@ -27,8 +27,17 @@ fault.
   so mistakes in them matter more than cosmetic bugs
 - Performance problems, especially on mobile
 
+There are issue templates for bug reports, place data problems, and feature
+requests, which collect the details that make each fastest to act on.
+
 For anything security-related, use [SECURITY.md](SECURITY.md) instead of a
 public issue.
+
+If you hold rights in material used here and want it credited differently or
+removed, there is a [dedicated template](../../issues/new?template=rights_holder.yml)
+for that, and it takes priority over everything else on this list.
+
+Participation is covered by the [code of conduct](.github/CODE_OF_CONDUCT.md).
 
 ## Setting up
 
@@ -52,8 +61,15 @@ pages, so say in the PR what you loaded and what you saw.
 
 If you changed the wiki pipeline (`lib/wiki/`), confirm you did not break the
 sanitizer: inject `<script>alert(1)</script>` and `<img src=x onerror=alert(1)>`
-into one file in `public/data/Faerun/wiki/`, rebuild, confirm neither survives
-into `.next/server/app/place/<slug>.html`, then revert the file.
+into the `html` field of one file in `public/data/Faerun/wiki/`, rebuild,
+confirm neither survives into `.next/server/app/place/<slug>.html`, then revert
+the file. Poison `html` rather than `proseHtml` — `proseHtml` is what the
+sanitizer *produces*, so editing it tests nothing. Pick a file whose `status` is
+`ok` and that is not a redirect stub, or `loadArticle` bails before sanitizing.
+
+CI runs all of the above on every PR, including the sanitizer check, so a
+regression will be caught even if you skip the manual pass. Doing it by hand is
+still worth it for the ones CI cannot see, like layout.
 
 ## Conventions
 

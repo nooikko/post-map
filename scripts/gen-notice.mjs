@@ -14,6 +14,7 @@ import process from 'node:process';
 const {
     NON_AFFILIATION_NOTICE,
     PROJECT_NAME,
+    RIGHTS_CONTACT,
     TILE_SOURCE,
     WIKI_HOST,
     WIKI_LICENSE,
@@ -66,6 +67,26 @@ Coast map described above. The artwork in them is theirs, and the Fan Content
 Policy above is what governs their use.
 
 How the pyramid was produced is recorded in docs/tile-pipeline.md.
+
+
+Rights holders — corrections and removals
+--------------------------------------------------------------------------
+This project mirrors material it does not own. If you hold rights in something
+used here and you want it credited differently, credited where it currently is
+not, or removed altogether, please say so and it will be acted on.
+
+Publicly:
+
+    ${RIGHTS_CONTACT.public}
+
+Privately, if you would rather not open a public issue:
+
+    ${RIGHTS_CONTACT.private}
+
+No proof of ownership is demanded up front and no particular form is required —
+a plain request is enough to start. Attribution and removal requests are treated
+as higher priority than any feature or bug here, because they are obligations
+rather than preferences.
 `;
 
 const noticePath = path.join(import.meta.dirname, '..', 'NOTICE');

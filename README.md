@@ -4,6 +4,7 @@ An interactive map of Faerûn for tabletop D&D — pan and zoom a tiled
 3rd-edition map, find any of 297 marked places, measure travel distances, and
 read that place's Forgotten Realms Wiki article without leaving the map.
 
+[![CI](https://github.com/nooikko/post-map/actions/workflows/ci.yml/badge.svg)](https://github.com/nooikko/post-map/actions/workflows/ci.yml)
 [![Licence: MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](LICENSE)
 [![Fan Content](https://img.shields.io/badge/Wizards-Fan%20Content%20Policy-orange.svg)](https://company.wizards.com/en/legal/fancontentpolicy)
 
@@ -36,7 +37,7 @@ Not affiliated with, endorsed, or approved by Wizards of the Coast.
 Requires **Node.js 22.6+** and **pnpm**.
 
 ```bash
-git clone https://github.com/<your-account>/post-map.git
+git clone https://github.com/nooikko/post-map.git
 cd post-map
 pnpm install
 pnpm dev
@@ -78,9 +79,11 @@ pnpm start
 Bug reports and ideas are welcome — please
 [open an issue](../../issues). This is a personal project, so pull requests may
 not be merged; see [CONTRIBUTING.md](CONTRIBUTING.md) before starting work on
-one.
+one, and [the code of conduct](.github/CODE_OF_CONDUCT.md) for the short version
+of how to behave.
 
-To report a security issue, see [SECURITY.md](SECURITY.md).
+To report a security issue, see [SECURITY.md](SECURITY.md) — please use private
+reporting rather than a public issue.
 
 ## Licensing
 
@@ -97,6 +100,18 @@ The Fan Content Policy governs the map and requires that the site stay free to
 access — no paywall, subscription, or gated download. It is revocable permission
 rather than a licence and can be withdrawn at any time. If you fork this, that
 applies to you too.
+
+### If you hold rights in something used here
+
+This project mirrors material it does not own. If you want something credited
+differently, credited where it currently is not, or removed altogether, please
+open a [rights holder request](../../issues/new?template=rights_holder.yml), or
+send it [privately](../../security/advisories/new) if you would rather not file
+a public issue.
+
+No proof of ownership is demanded up front and no particular form is required.
+These requests are treated as higher priority than any feature or bug here,
+because they are obligations rather than preferences.
 
 ## Credits
 
