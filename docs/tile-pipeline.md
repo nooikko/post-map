@@ -13,7 +13,7 @@ from scratch is the honest option if it ever needs to change.
 ## Provenance
 
 Wizards of the Coast published the 3rd-edition Faerûn map. That map is the source,
-and the only party with rights in it.
+and they are the only party with rights in it. It has circulated freely for years.
 
 This project worked from that map, enhanced it, and cut the pyramid served here.
 See `NOTICE`.
