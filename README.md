@@ -10,14 +10,7 @@ read that place's Forgotten Realms Wiki article without leaving the map.
 
 Not affiliated with, endorsed, or approved by Wizards of the Coast.
 
-## Screenshot
-
-<!--
-  Drop a screenshot at docs/screenshot.png, then uncomment the line below.
-  A wide shot of the map with a place panel open reads best.
-
-![The Faerûn map with the Waterdeep panel open](docs/screenshot.png)
--->
+![The whole of Faerûn, with all 297 places marked and the category layers, search, and licence notices in the sidebar](docs/screenshot.webp)
 
 ## Features
 
