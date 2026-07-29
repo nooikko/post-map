@@ -14,11 +14,6 @@ export function pixelToCoord(x: number, y: number): Coord {
     return [x, IMG_H - y];
 }
 
-/** Projection coordinate → image pixel. */
-export function coordToPixel(coord: Coord): { x: number; y: number } {
-    return { x: coord[0], y: IMG_H - coord[1] };
-}
-
 /**
  * Straight-line metres between two coordinates in the pixel-projection CRS.
  * Coordinates are image pixels, scaled by METERS_PER_PIXEL.

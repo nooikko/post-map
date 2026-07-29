@@ -1,8 +1,5 @@
 .DS_Store
 node_modules/
-dist/
-dev-dist/
-.vite/
 .next/
 next-env.d.ts
 tsconfig.tsbuildinfo

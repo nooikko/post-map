@@ -2,6 +2,21 @@
 
 How Post Map is put together, for anyone reading or changing the code.
 
+## A note on "the Vite app"
+
+Comments through `lib/` and `components/` refer to *the Vite app*. That is this
+project's first implementation: a static Vite + vanilla-JS build (`src/*.js`, a
+service worker, a Python tile and wiki toolchain) that this Next.js version
+replaced wholesale. It is not in the tree — only in git history, before the
+port.
+
+Those references are kept because they carry the reason a thing is shaped the
+way it is: a bug that version had, a cost it paid, a behaviour worth matching.
+`lib/settings/units.ts` explaining that units shipped half-built, or
+`useMarkerInteractions.ts` noting that hit-testing ran twice a frame, is the
+record of why the current code does not. Read them as "the previous
+implementation", not as a module you can go and open.
+
 ## Stack
 
 Next.js 16 (App Router) · TypeScript · Tailwind 4 · OpenLayers 10, deployed on

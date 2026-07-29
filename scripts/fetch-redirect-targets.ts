@@ -134,24 +134,44 @@ async function fetchArticle(name: string): Promise<unknown> {
     return res.json();
 }
 
-/** Shape an API response into the on-disk envelope, keys in schema order. */
-function normalize(raw: any, name: string): MirrorFile {
-    const source = { wiki: WIKI_HOST, url: sourceUrl(name), fetchedAt: new Date().toISOString().replace(/\.\d{3}Z$/, 'Z') };
+/**
+ * The slice of a MediaWiki action=parse response this script reads. Narrowed
+ * from `unknown` rather than trusted: the body is whatever the network handed
+ * back, and every field here is optional because an error response carries
+ * none of them.
+ */
+interface ParseResponse {
+    error?: { code?: string; info?: string };
+    parse?: { title?: string; pageid?: number; text?: { '*'?: string } };
+}
 
-    if (raw?.error) {
-        const code = raw.error.code ?? 'unknown';
+function isParseResponse(value: unknown): value is ParseResponse {
+    return typeof value === 'object' && value !== null;
+}
+
+/** Shape an API response into the on-disk envelope, keys in schema order. */
+function normalize(raw: unknown, name: string): MirrorFile {
+    const body: ParseResponse = isParseResponse(raw) ? raw : {};
+    const source = {
+        wiki: WIKI_HOST,
+        url: sourceUrl(name),
+        fetchedAt: new Date().toISOString().replace(/\.\d{3}Z$/, 'Z'),
+    };
+
+    if (body.error) {
+        const code = body.error.code ?? 'unknown';
         return {
             name,
             status: code === 'missingtitle' ? 'missing' : 'error',
             title: null,
             pageId: null,
             html: null,
-            error: { code, info: raw.error.info ?? '' },
+            error: { code, info: body.error.info ?? '' },
             source,
         };
     }
 
-    const html = raw?.parse?.text?.['*'];
+    const html = body.parse?.text?.['*'];
     if (html == null) {
         return {
             name,
@@ -167,8 +187,8 @@ function normalize(raw: any, name: string): MirrorFile {
     return {
         name,
         status: 'ok',
-        title: raw.parse.title ?? null,
-        pageId: raw.parse.pageid ?? null,
+        title: body.parse?.title ?? null,
+        pageId: body.parse?.pageid ?? null,
         html: stripImages(html),
         error: null,
         source,
@@ -188,6 +208,7 @@ async function main(): Promise<number> {
     console.log(`${targets.length} redirect targets to fetch${force ? ' (--force)' : ''}: ${JSON.stringify(targets)}`);
 
     const stats = { ok: 0, missing: 0, error: 0 };
+    let failed = 0;
 
     for (const name of targets) {
         let raw: unknown;
@@ -195,6 +216,7 @@ async function main(): Promise<number> {
             raw = await fetchArticle(name);
         } catch (err) {
             console.error(`  ${name}: fetch failed: ${(err as Error).message}`);
+            failed += 1;
             continue;
         }
         const article = normalize(raw, name);
@@ -203,8 +225,12 @@ async function main(): Promise<number> {
         console.log(`  ${name}: ${article.status} (${article.html?.length ?? 0} chars)`);
     }
 
-    console.log(`done: ${JSON.stringify(stats)}`);
-    return 0;
+    console.log(`done: ${JSON.stringify(stats)}${failed ? `, ${failed} failed` : ''}`);
+
+    // A network flake used to report itself on stderr and still exit 0, so
+    // anything scripting this could not tell a clean run from a half-finished
+    // one. `missing` is not a failure — the wiki genuinely has no such page.
+    return failed || stats.error ? 1 : 0;
 }
 
 process.exitCode = await main();

@@ -29,15 +29,6 @@ export const IMAGE_DROP_CLASSES = [
 export const WIKIA_CDN_HOST = 'static.wikia.nocookie.net';
 
 /**
- * The mirror file envelope, in order. Written in this order so re-fetching an
- * article produces a minimal diff against what is already committed.
- * Mirrors schemas/wiki-article.schema.json.
- */
-export const SCHEMA_KEYS = [
-    'name', 'status', 'title', 'pageId', 'html', 'error', 'source',
-] as const;
-
-/**
  * Article names become filenames, so only bare names are allowed — no path
  * separators, no dot components. A wiki page called `../../etc/passwd` must not
  * be able to steer a write out of the mirror directory.

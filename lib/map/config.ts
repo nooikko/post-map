@@ -24,24 +24,6 @@ export const METERS_PER_PIXEL = 1287.473;
 // `/place/waterdeep` would otherwise look for tiles under `/place/tiles/...`.
 export const TILE_URL = '/tiles/{z}/{x}/{y}.webp';
 
-export interface TileBound {
-    z: number;
-    maxX: number;
-    maxY: number;
-}
-
-// Bounds of the tiles that exist on disk, per zoom level (full pyramid z0–z6,
-// @2x 512px webp). Matches the source tile coverage. 1296 tiles total.
-export const TILE_BOUNDS: readonly TileBound[] = [
-    { z: 0, maxX: 0, maxY: 0 },
-    { z: 1, maxX: 1, maxY: 0 },
-    { z: 2, maxX: 2, maxY: 1 },
-    { z: 3, maxX: 4, maxY: 3 },
-    { z: 4, maxX: 9, maxY: 6 },
-    { z: 5, maxX: 18, maxY: 12 },
-    { z: 6, maxX: 37, maxY: 24 },
-];
-
 export type LayerKey =
     | 'Ports'
     | 'Cities'
