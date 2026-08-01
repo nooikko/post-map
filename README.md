@@ -26,8 +26,9 @@ Not affiliated with, endorsed, or approved by Wizards of the Coast.
 - **Shareable links** — every place has its own URL.
 - **Built for a finger too** — on touch the sidebar becomes a bottom sheet you
   drag down, and the map keeps the whole screen.
-- **Works offline-ish** — no database, no accounts, no cookies, and no runtime
-  API calls beyond anonymous visitor counts. See [Privacy](PRIVACY.md).
+- **Nothing behind it** — every page is prerendered, so there is no database,
+  no accounts, no cookies, and no runtime API calls beyond anonymous visitor
+  counts. See [Privacy](PRIVACY.md).
 
 ## Getting started
 

@@ -37,7 +37,7 @@ import {
 
 const WIKI_DIR = path.join(import.meta.dirname, '..', 'public', 'data', 'Faerun', 'wiki');
 const API = `https://${WIKI_HOST}/api.php`;
-const UA = 'post-map/1.0 (local offline mirror; personal project)';
+const UA = 'post-map/1.0 (build-time mirror; personal project)';
 const TIMEOUT_MS = 30_000;
 
 interface MirrorFile {
