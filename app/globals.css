@@ -45,6 +45,16 @@
     /* Zoom is two buttons plus its 1px top and bottom border. */
     --map-control-zoom-h: calc(2 * var(--map-control-btn) + 2px);
 
+    /*
+     * Minimum hit area for a finger, in px because the root font-size below is
+     * 14px — a rem-based floor such as Tailwind's `min-h-11` would quietly
+     * resolve to 38.5px against it. Only ever applied inside `coarse:`, so it
+     * cannot reach a mouse.
+     */
+    --touch-target: 44px;
+    /* Secondary controls, where a full 44px would outgrow the 40px topbar. */
+    --touch-target-sm: 36px;
+
     --gold: #c9a24b;
     --gold-soft: rgba(201, 162, 75, 0.16);
     --gold-line: rgba(201, 162, 75, 0.28);

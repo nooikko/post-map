@@ -28,12 +28,12 @@ export function MeasureControl() {
         <div>
             <SectionHeading>Measurement</SectionHeading>
 
-            <label className="flex items-center justify-between gap-2 px-1 text-[12px] text-muted coarse:min-h-11 coarse:px-2 coarse:text-[14px]">
+            <label className="flex items-center justify-between gap-2 px-1 text-[12px] text-muted coarse:min-h-(--touch-target) coarse:px-2 coarse:text-[14px]">
                 <span>Units</span>
                 <select
                     value={unit}
                     onChange={(e) => setUnit(e.target.value as DistanceUnit)}
-                    className="cursor-pointer rounded border border-edge bg-white/4 px-1.5 py-1 text-[12px] text-panel-fg outline-none coarse:min-h-9 coarse:px-2.5 coarse:text-[15px] focus:border-accent"
+                    className="cursor-pointer rounded border border-edge bg-white/4 px-1.5 py-1 text-[12px] text-panel-fg outline-none coarse:min-h-(--touch-target-sm) coarse:px-2.5 coarse:text-[15px] focus:border-accent"
                 >
                     {UNITS.map((u) => (
                         <option key={u.value} value={u.value} className="bg-[#1f1f1f]">

@@ -21,7 +21,7 @@ export function Topbar({ panelOpen, onTogglePanel, panelLabel }: TopbarProps) {
                 onClick={onTogglePanel}
                 aria-label={`${panelOpen ? 'Hide' : 'Show'} ${panelLabel}`}
                 aria-expanded={panelOpen}
-                className="inline-flex cursor-pointer items-center gap-1.5 rounded border border-transparent px-2 py-1.5 text-panel-fg coarse:min-h-9 coarse:px-3 hover:bg-white/6 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+                className="inline-flex cursor-pointer items-center gap-1.5 rounded border border-transparent px-2 py-1.5 text-panel-fg coarse:min-h-(--touch-target-sm) coarse:px-3 hover:bg-white/6 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
             >
                 <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
                     <rect x="2" y="3.5" width="12" height="1.6" rx="0.5" fill="currentColor" />
@@ -42,17 +42,9 @@ export function Topbar({ panelOpen, onTogglePanel, panelLabel }: TopbarProps) {
                 </span>
             </h1>
             {/*
-              * Only while the panel is closed — open, the GitHub corner in the
-              * sidebar's bottom-left is the link, and showing both would put
-              * the same destination on screen twice.
-              *
-              * On touch that handover used to drop the link entirely: there is
-              * no corner on a coarse pointer, so opening the drawer hid this
-              * icon and replaced it with nothing. Leaving the icon up instead
-              * would not have worked either — the drawer is a modal <dialog>,
-              * so this bar sits behind its backdrop and is inert while it is
-              * open. The touch half of the pair is a line in Credits, which
-              * rides inside the drawer; see the note there.
+              * Only while the panel is closed, so the same destination is never
+              * on screen twice: open, the link is the sidebar's GitHub corner
+              * on desktop and a line in Credits on touch.
               *
               * ml-auto rather than a spacer element, so it stays pinned right
               * whatever the title runs to.
@@ -64,7 +56,7 @@ export function Topbar({ panelOpen, onTogglePanel, panelLabel }: TopbarProps) {
                     rel="noopener noreferrer"
                     aria-label={`${PROJECT_NAME} source on GitHub`}
                     title={`${PROJECT_NAME} source on GitHub`}
-                    className="ml-auto inline-flex cursor-pointer items-center gap-1.5 rounded border border-transparent px-2 py-1.5 text-panel-fg coarse:min-h-9 coarse:px-3 hover:bg-white/6 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+                    className="ml-auto inline-flex cursor-pointer items-center gap-1.5 rounded border border-transparent px-2 py-1.5 text-panel-fg coarse:min-h-(--touch-target-sm) coarse:px-3 hover:bg-white/6 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
                 >
                     {/* Inline path, not a remote asset: the CSP is img-src 'self' data:. */}
                     <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" fill="currentColor">

@@ -32,11 +32,16 @@ export function LayerToggles() {
     return (
         <div>
             <SectionHeading>Layers</SectionHeading>
-            <div className="flex flex-col gap-1">
+            {/*
+              * The gap carries most of the row spacing rather than the padding,
+              * which is also the hover target and so is kept larger than it
+              * needs to be for spacing alone.
+              */}
+            <div className="flex flex-col gap-0.5">
                 {LAYERS.map((def) => (
                     <label
                         key={def.key}
-                        className="grid cursor-pointer grid-cols-[18px_18px_1fr_auto] items-center gap-2.5 rounded px-1 py-1.5 select-none coarse:min-h-11 coarse:grid-cols-[22px_18px_1fr_auto] coarse:px-2 hover:bg-white/4"
+                        className="grid cursor-pointer grid-cols-[18px_18px_1fr_auto] items-center gap-2.5 rounded px-1 py-1 select-none coarse:min-h-(--touch-target) coarse:grid-cols-[22px_18px_1fr_auto] coarse:px-2 hover:bg-white/4"
                     >
                         <input
                             type="checkbox"

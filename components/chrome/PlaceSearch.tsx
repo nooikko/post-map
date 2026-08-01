@@ -85,7 +85,7 @@ export function PlaceSearch({ markers, onSelect }: PlaceSearchProps) {
                             <button
                                 type="button"
                                 onClick={() => go(marker)}
-                                className="grid w-full cursor-pointer grid-cols-[14px_1fr_auto] items-center gap-2 border-b border-white/3 px-2.5 py-[7px] text-left text-[13px] last:border-b-0 coarse:min-h-11 coarse:text-[15px] hover:bg-accent/12"
+                                className="grid w-full cursor-pointer grid-cols-[14px_1fr_auto] items-center gap-2 border-b border-white/3 px-2.5 py-[7px] text-left text-[13px] last:border-b-0 coarse:min-h-(--touch-target) coarse:text-[15px] hover:bg-accent/12"
                             >
                                 <span
                                     aria-hidden="true"
