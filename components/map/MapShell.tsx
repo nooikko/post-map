@@ -7,12 +7,11 @@ import { useRouter } from 'next/navigation';
 // Importing it from this component puts it after globals in the cascade, which
 // reverts our zoom control styling.
 
-import { Credits } from '@/components/chrome/Credits';
+import { BottomSheet } from '@/components/chrome/BottomSheet';
+import { ChromeContents } from '@/components/chrome/ChromeContents';
 import { GithubCorner } from '@/components/chrome/GithubCorner';
-import { LayerToggles } from '@/components/chrome/LayerToggles';
-import { MeasureControl } from '@/components/chrome/MeasureControl';
-import { PlaceSearch } from '@/components/chrome/PlaceSearch';
 import { Topbar } from '@/components/chrome/Topbar';
+import { useCoarsePointer } from '@/components/chrome/useCoarsePointer';
 import type { MapCore } from '@/lib/map/create';
 import type { Marker } from '@/lib/markers/load';
 
@@ -37,8 +36,20 @@ interface MapShellProps {
 export function MapShell({ markers }: MapShellProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const [core, setCore] = useState<MapCore | null>(null);
-    const [sidebarOpen, setSidebarOpen] = useState(true);
+    // The desktop sidebar opens with the app; the sheet has to be asked for.
+    // One piece of state drives both, so `false` here would also collapse the
+    // sidebar — hence the two are initialised apart, in the panel-open effect
+    // below rather than here, where there is no window to ask yet.
+    const [panelOpen, setPanelOpen] = useState(true);
+    const coarse = useCoarsePointer();
     const router = useRouter();
+
+    // A phone should not start with the sheet in its face. This runs once
+    // useCoarsePointer has settled after mount; before then the CSS below has
+    // already kept the sidebar off a touch viewport, so nothing flashes.
+    useEffect(() => {
+        if (coarse) setPanelOpen(false);
+    }, [coarse]);
 
     useEffect(() => {
         const el = containerRef.current;
@@ -89,26 +100,49 @@ export function MapShell({ markers }: MapShellProps) {
     const measure = useMeasureTool(core);
 
     // The sidebar animates its width; OL needs a nudge once the transition has
-    // settled or the canvas keeps the old size.
-    const toggleSidebar = useCallback(() => {
-        setSidebarOpen((open) => !open);
+    // settled or the canvas keeps the old size. The sheet floats over a
+    // full-bleed map instead, so on touch there is no resize to chase.
+    const togglePanel = useCallback(() => {
+        setPanelOpen((open) => !open);
+        if (coarse) return;
         window.setTimeout(() => {
             core?.map.updateSize();
             core?.applyFitConstraints();
         }, 220);
-    }, [core]);
+    }, [core, coarse]);
+
+    const closePanel = useCallback(() => setPanelOpen(false), []);
+
+    // Picking a result flies the map to it, which there is no point watching
+    // from behind a sheet.
+    const selectPlace = useCallback(
+        (slug: string) => {
+            if (coarse) setPanelOpen(false);
+            openPlace(slug);
+        },
+        [coarse, openPlace],
+    );
 
     return (
         <MapContext.Provider value={core}>
-            <div className={`${styles.shell} ${sidebarOpen ? '' : styles.collapsed}`}>
-                <Topbar onToggleSidebar={toggleSidebar} sidebarOpen={sidebarOpen} />
-                <aside className={styles.sidebar} aria-hidden={!sidebarOpen}>
-                    <PlaceSearch markers={markers} onSelect={openPlace} />
-                    <MeasureControl />
-                    <LayerToggles />
-                    <Credits />
-                </aside>
-                <GithubCorner className={styles.corner} reachable={sidebarOpen} />
+            <div className={`${styles.shell} ${panelOpen ? '' : styles.collapsed}`}>
+                <Topbar
+                    onTogglePanel={togglePanel}
+                    panelOpen={panelOpen}
+                    panelLabel={coarse ? 'map controls' : 'sidebar'}
+                />
+                {coarse ? (
+                    <BottomSheet open={panelOpen} onClose={closePanel} label="Map controls">
+                        <ChromeContents markers={markers} onSelect={selectPlace} />
+                    </BottomSheet>
+                ) : (
+                    <>
+                        <aside className={styles.sidebar} aria-hidden={!panelOpen}>
+                            <ChromeContents markers={markers} onSelect={selectPlace} />
+                        </aside>
+                        <GithubCorner className={styles.corner} reachable={panelOpen} />
+                    </>
+                )}
                 <div ref={containerRef} className={styles.map} />
                 <MeasureToggle onToggle={measure.toggle} />
                 <MeasureReadout onClear={measure.clear} />

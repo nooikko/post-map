@@ -66,3 +66,23 @@
 .collapsed .map {
     left: 0;
 }
+
+/*
+ * Touch gets a full-bleed map and reaches these controls through the bottom
+ * sheet instead. MapShell stops rendering the sidebar and the corner once it
+ * knows the pointer is coarse, but it cannot know that until after hydration —
+ * this is what keeps the first paint from showing a 280px panel that is about
+ * to be replaced, on a screen where 280px is most of the width.
+ */
+@media (pointer: coarse) {
+    .sidebar,
+    .corner {
+        display: none;
+    }
+
+    .map,
+    .collapsed .map {
+        left: 0;
+        transition: none;
+    }
+}

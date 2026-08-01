@@ -3,19 +3,25 @@
 import { PROJECT_NAME, REPO_URL } from '@/lib/attribution';
 
 interface TopbarProps {
-    sidebarOpen: boolean;
-    onToggleSidebar: () => void;
+    panelOpen: boolean;
+    onTogglePanel: () => void;
+    /**
+     * What the toggle opens, for the accessible label. The same button reveals
+     * the sidebar on a desktop and the bottom sheet on a phone, and announcing
+     * "sidebar" to someone who has never had one is worse than saying nothing.
+     */
+    panelLabel: string;
 }
 
-export function Topbar({ sidebarOpen, onToggleSidebar }: TopbarProps) {
+export function Topbar({ panelOpen, onTogglePanel, panelLabel }: TopbarProps) {
     return (
         <header className="absolute inset-x-0 top-0 z-500 flex h-(--topbar-h) items-center gap-2.5 border-b border-edge bg-panel px-3.5 text-[13px] backdrop-blur-lg select-none">
             <button
                 type="button"
-                onClick={onToggleSidebar}
-                aria-label={sidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
-                aria-expanded={sidebarOpen}
-                className="inline-flex cursor-pointer items-center gap-1.5 rounded border border-transparent px-2 py-1.5 text-panel-fg hover:bg-white/6 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+                onClick={onTogglePanel}
+                aria-label={`${panelOpen ? 'Hide' : 'Show'} ${panelLabel}`}
+                aria-expanded={panelOpen}
+                className="inline-flex cursor-pointer items-center gap-1.5 rounded border border-transparent px-2 py-1.5 text-panel-fg coarse:min-h-9 coarse:px-3 hover:bg-white/6 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
             >
                 <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
                     <rect x="2" y="3.5" width="12" height="1.6" rx="0.5" fill="currentColor" />
@@ -28,21 +34,23 @@ export function Topbar({ sidebarOpen, onToggleSidebar }: TopbarProps) {
                 <span className="text-muted before:mx-2 before:content-['·']">Faerûn</span>
             </span>
             {/*
-              * Only while the sidebar is closed — open, the GitHub corner in
-              * the sidebar's bottom-left is the link, and showing both would
-              * put the same destination on screen twice.
+              * Only while the panel is closed — open, the GitHub corner in the
+              * sidebar's bottom-left is the link, and showing both would put
+              * the same destination on screen twice. On touch there is no
+              * corner, and the panel is a sheet that covers this bar anyway, so
+              * the same rule leaves the link visible whenever it can be seen.
               *
               * ml-auto rather than a spacer element, so it stays pinned right
               * whatever the title runs to.
               */}
-            {!sidebarOpen && (
+            {!panelOpen && (
                 <a
                     href={REPO_URL}
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={`${PROJECT_NAME} source on GitHub`}
                     title={`${PROJECT_NAME} source on GitHub`}
-                    className="ml-auto inline-flex cursor-pointer items-center gap-1.5 rounded border border-transparent px-2 py-1.5 text-panel-fg hover:bg-white/6 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+                    className="ml-auto inline-flex cursor-pointer items-center gap-1.5 rounded border border-transparent px-2 py-1.5 text-panel-fg coarse:min-h-9 coarse:px-3 hover:bg-white/6 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
                 >
                     {/* Inline path, not a remote asset: the CSP is img-src 'self' data:. */}
                     <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" fill="currentColor">
