@@ -4,13 +4,15 @@ An interactive map of Faerûn for tabletop D&D — pan and zoom a tiled
 3rd-edition map, find any of 297 marked places, measure travel distances, and
 read that place's Forgotten Realms Wiki article without leaving the map.
 
+**→ [postmap.findquinn.com](https://postmap.findquinn.com)**
+
 [![CI](https://github.com/nooikko/post-map/actions/workflows/ci.yml/badge.svg)](https://github.com/nooikko/post-map/actions/workflows/ci.yml)
 [![Licence: MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](LICENSE)
 [![Fan Content](https://img.shields.io/badge/Wizards-Fan%20Content%20Policy-orange.svg)](https://company.wizards.com/en/legal/fancontentpolicy)
 
 Not affiliated with, endorsed, or approved by Wizards of the Coast.
 
-![The whole of Faerûn, with all 297 places marked and the category layers, search, and licence notices in the sidebar](docs/screenshot.webp)
+![The whole of Faerûn, with all 297 places marked and the search box, unit picker, category layers, and licence notices in the sidebar](docs/screenshot.webp)
 
 ## Features
 
@@ -22,6 +24,8 @@ Not affiliated with, endorsed, or approved by Wizards of the Coast.
 - **Distance measurement** in miles or kilometres, scaled from the source map.
 - **Search** across every marked place.
 - **Shareable links** — every place has its own URL.
+- **Built for a finger too** — on touch the sidebar becomes a bottom sheet you
+  drag down, and the map keeps the whole screen.
 - **Works offline-ish** — no database, no accounts, no cookies, and no runtime
   API calls beyond anonymous visitor counts. See [Privacy](PRIVACY.md).
 
@@ -54,9 +58,16 @@ pnpm start
 | `pnpm build` | Prerender the map and all 297 place pages |
 | `pnpm start` | Serve the production build |
 | `pnpm typecheck` | `tsc --noEmit` |
-| `pnpm notice` | Regenerate `NOTICE` from `lib/attribution.ts` |
-| `pnpm notice:check` | Fail if `NOTICE` has drifted |
+| `pnpm licence` | Regenerate `NOTICE`, `REUSE.toml` and `LICENSES/` from `lib/attribution.ts` and `lib/licence-scope.ts` |
+| `pnpm licence:check` | Fail if any of those have drifted; CI runs this |
+| `pnpm images` | Recompose `public/faerun-map*` from the tile pyramid |
 | `pnpm fetch:redirects` | Top up the wiki mirror; `--force` re-fetches |
+
+`licence` is a pair of narrower scripts — `notice` and `reuse`, each with a
+`:check` variant — for when only one of the generated files is in question.
+
+`images` is not part of the build. Its two outputs are committed alongside the
+tiles they are cut from, so it only needs running when the pyramid changes.
 
 </details>
 
@@ -83,59 +94,29 @@ reporting rather than a public issue.
 The site counts visitors and page-load timings with Vercel Web Analytics and
 Speed Insights, on their free tier. No cookies, no accounts, no third-party
 trackers, and nothing typed into the search box leaves the browser. The full
-policy is at [post-map.vercel.app/privacy](https://post-map.vercel.app/privacy);
-see [PRIVACY.md](PRIVACY.md).
+policy is at
+[postmap.findquinn.com/privacy](https://postmap.findquinn.com/privacy); see
+[PRIVACY.md](PRIVACY.md).
 
 ## Licensing
 
-MIT covers this repository **except** for the paths below, each of which is
-governed by its own terms. Where several apply at once, the most restrictive
-governs.
+The code is MIT. The map artwork, the mirrored article text and the marker data
+are not — each carries its own terms. **[NOTICE](NOTICE) is the authoritative
+statement of which is which**, and worth reading before you fork: two of those
+conditions travel with the material rather than with this repository.
 
-| Path | Terms |
-|---|---|
-| Everything not listed below | MIT — see [LICENSE](LICENSE) |
-| `public/tiles/**`, `docs/screenshot.webp` | Wizards of the Coast, under the Fan Content Policy |
-| `public/data/Faerun/wiki/**` | CC BY-SA 3.0, credited on every article view |
-| `public/data/Faerun/*.json` | Origin untraceable — no claim asserted, no permission granted |
+`NOTICE`, [REUSE.toml](REUSE.toml) and [LICENSES/](LICENSES) are generated from
+`lib/licence-scope.ts` — change that module and run `pnpm licence`.
 
-[REUSE.toml](REUSE.toml) carries the same split in machine-readable form,
-[LICENSES/](LICENSES) holds the text of each licence named above, and
-[NOTICE](NOTICE) is the long-form prose version.
-
-Two things are easy to get wrong when forking. Share-alike travels with an
-*adaptation* of the article text rather than with that directory, so anything
-built out of it carries CC BY-SA 3.0 too — a prebuilt search index most of all,
-since by then it no longer looks like text. And the Fan Content Policy requires
-that the site stay free to access — no paywall, subscription, or gated download.
-It is revocable permission rather than a licence and can be withdrawn at any
-time. Both apply to you as much as to this project.
-
-### If you hold rights in something used here
-
-This project mirrors material it does not own. If you want something credited
-differently, credited where it currently is not, or removed altogether, please
-open a [rights holder request](../../issues/new?template=rights_holder.yml), or
-send it [privately](../../security/advisories/new) if you would rather not file
-a public issue.
-
-No proof of ownership is demanded up front and no particular form is required.
-These requests are treated as higher priority than any feature or bug here,
-because they are obligations rather than preferences.
+If you hold rights in something used here and want it credited differently or
+removed, open a [rights holder request](../../issues/new?template=rights_holder.yml)
+or send it [privately](../../security/advisories/new). No proof of ownership is
+demanded up front, and these take priority over any feature or bug here.
 
 ## Credits
 
-Place articles come from the [Forgotten Realms Wiki](https://forgottenrealms.fandom.com/),
-used under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
-
-The map tiles are this project's own cut of the published Faerûn map. The artwork
-in them is Wizards of the Coast's — see [docs/tile-pipeline.md](docs/tile-pipeline.md)
-for how the pyramid was produced.
-
-The marker data — which 297 places are pinned, and where they sit — came from a
-forum that went offline years ago. The domain now serves an unrelated site and
-the data has circulated since with no attribution attached to it, so there is
-nobody left to credit. This project claims nothing in it. If you compiled it, or
-you know who did, please get in touch.
-
-Full attributions are in [NOTICE](NOTICE).
+Place articles come from the [Forgotten Realms Wiki](https://forgottenrealms.fandom.com/).
+The map artwork is Wizards of the Coast's; [docs/tile-pipeline.md](docs/tile-pipeline.md)
+covers how this project cut it into tiles. The marker data came from a forum that
+went offline years ago with no attribution attached to it — if you compiled it,
+or know who did, please get in touch.
