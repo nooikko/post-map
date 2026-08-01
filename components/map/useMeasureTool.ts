@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef } from 'react';
 
 import type { MapCore } from '@/lib/map/create';
 import { METERS_PER_PIXEL } from '@/lib/map/config';
+import { isCoarsePointer } from '@/lib/pointer';
 import { formatDistance, subscribeUnit } from '@/lib/settings/units';
 
 import { useMeasureStore } from './measureStore';
@@ -11,6 +12,13 @@ import { useMeasureStore } from './measureStore';
 export interface MeasureControls {
     toggle: () => void;
     clear: () => void;
+}
+
+/** The geometry constructors, resolved once during setup — see `geom` below. */
+interface MeasureGeom {
+    Feature: typeof import('ol/Feature.js').default;
+    Point: typeof import('ol/geom/Point.js').default;
+    LineString: typeof import('ol/geom/LineString.js').default;
 }
 
 interface MeasureInternals {
@@ -21,6 +29,19 @@ interface MeasureInternals {
     dblZoom: import('ol/interaction/DoubleClickZoom.js').default | null;
     cursorOverlay: import('ol/Overlay.js').default | null;
     cursorTip: HTMLDivElement | null;
+    /**
+     * Resolved alongside the vector layer during setup, so the click and move
+     * handlers can stay synchronous.
+     *
+     * They used to `await import(...)` on every click. That put a microtask
+     * between the click arriving and the coordinate being recorded, while
+     * `dblclick` — which OpenLayers dispatches immediately after the second
+     * click of a pair — stayed synchronous and ran first. So a quick
+     * double-click could reach finish() with coords still empty, which
+     * hard-clears and cancels the measurement instead of completing it. Rare
+     * with a mouse, and much less rare once taps started registering.
+     */
+    geom: MeasureGeom | null;
     /** Set briefly after finishing, so the trailing dblclick can be swallowed. */
     justFinished: boolean;
 }
@@ -55,6 +76,7 @@ export function useMeasureTool(core: MapCore | null): MeasureControls {
         dblZoom: null,
         cursorOverlay: null,
         cursorTip: null,
+        geom: null,
         justFinished: false,
     });
 
@@ -90,14 +112,22 @@ export function useMeasureTool(core: MapCore | null): MeasureControls {
                 { default: Overlay },
                 { default: DoubleClickZoom },
                 { measureStyle },
+                { default: Feature },
+                { default: Point },
+                { default: LineString },
             ] = await Promise.all([
                 import('ol/layer/Vector.js'),
                 import('ol/source/Vector.js'),
                 import('ol/Overlay.js'),
                 import('ol/interaction/DoubleClickZoom.js'),
                 import('@/lib/map/measureStyle'),
+                import('ol/Feature.js'),
+                import('ol/geom/Point.js'),
+                import('ol/geom/LineString.js'),
             ]);
             if (disposed) return;
+
+            self.geom = { Feature, Point, LineString };
 
             const source = new VectorSource();
             self.source = source;
@@ -130,14 +160,9 @@ export function useMeasureTool(core: MapCore | null): MeasureControls {
             self.cursorOverlay = overlay;
         })();
 
-        const onClick = async (evt: import('ol/MapBrowserEvent.js').default) => {
-            if (!useMeasureStore.getState().active || !self.source) return;
-            const [{ default: Feature }, { default: Point }, { default: LineString }] =
-                await Promise.all([
-                    import('ol/Feature.js'),
-                    import('ol/geom/Point.js'),
-                    import('ol/geom/LineString.js'),
-                ]);
+        const onClick = (evt: import('ol/MapBrowserEvent.js').default) => {
+            if (!useMeasureStore.getState().active || !self.source || !self.geom) return;
+            const { Feature, Point, LineString } = self.geom;
 
             const n = self.coords.length;
 
@@ -176,16 +201,18 @@ export function useMeasureTool(core: MapCore | null): MeasureControls {
             refresh();
         };
 
-        const onMove = async (evt: import('ol/MapBrowserEvent.js').default) => {
-            if (!useMeasureStore.getState().active || self.coords.length === 0 || !self.source) {
+        const onMove = (evt: import('ol/MapBrowserEvent.js').default) => {
+            if (
+                !useMeasureStore.getState().active ||
+                self.coords.length === 0 ||
+                !self.source ||
+                !self.geom
+            ) {
                 self.cursorOverlay?.setPosition(undefined);
                 document.body.classList.remove('measuring-vertex');
                 return;
             }
-            const [{ default: Feature }, { default: LineString }] = await Promise.all([
-                import('ol/Feature.js'),
-                import('ol/geom/LineString.js'),
-            ]);
+            const { Feature, LineString } = self.geom;
 
             const last = self.coords[self.coords.length - 1];
             if (!self.preview) {
@@ -318,9 +345,14 @@ export function useMeasureTool(core: MapCore | null): MeasureControls {
         self.coords = [];
         self.dblZoom?.setActive(false);
         document.body.classList.add('measuring');
+        // The two gestures are the same; only the words for them differ. Escape
+        // has no equivalent on a phone, where the way out is the toggle that
+        // started it.
         useMeasureStore.setState({
             active: true,
-            readout: 'Click to add points · last point finishes, first closes · Esc to cancel',
+            readout: isCoarsePointer()
+                ? 'Tap to add points · last point finishes, first closes · tap 📏 to cancel'
+                : 'Click to add points · last point finishes, first closes · Esc to cancel',
         });
     }, [clear]);
 

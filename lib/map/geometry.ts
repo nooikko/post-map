@@ -69,3 +69,22 @@ function fitResolutionFor(size: [number, number]): number {
 export function fitZoomFor(size: [number, number], nativeZoom: number): number {
     return nativeZoom - Math.log2(fitResolutionFor(size));
 }
+
+/**
+ * Resolution at which the image covers the whole viewport — the looser axis
+ * wins, so the viewport is full and the overflowing axis is cropped.
+ *
+ * The inverse of fitResolutionFor, and the counterpart it needs on a phone held
+ * upright. A 1.50:1 map inside a 0.46:1 window fits by width and leaves about
+ * two thirds of the screen as background; it also squeezes all 297 markers into
+ * a band too small to tell them apart, let alone tap one.
+ */
+function coverResolutionFor(size: [number, number]): number {
+    const [vw, vh] = size;
+    return Math.min(IMG_W / vw, IMG_H / vh);
+}
+
+/** Exact (fractional) zoom at which the image covers the viewport. */
+export function coverZoomFor(size: [number, number], nativeZoom: number): number {
+    return nativeZoom - Math.log2(coverResolutionFor(size));
+}

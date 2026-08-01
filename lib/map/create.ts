@@ -19,6 +19,7 @@ import Stroke from 'ol/style/Stroke.js';
 import Style from 'ol/style/Style.js';
 import TileGrid from 'ol/tilegrid/TileGrid.js';
 import { defaults as defaultControls } from 'ol/control/defaults.js';
+import { defaults as defaultInteractions } from 'ol/interaction/defaults.js';
 
 import {
     IMG_H,
@@ -31,11 +32,29 @@ import {
     type LayerDef,
     type LayerKey,
 } from './config';
-import { clampCenter, fitZoomFor, pixelToCoord, type Coord } from './geometry';
+import { clampCenter, coverZoomFor, fitZoomFor, pixelToCoord, type Coord } from './geometry';
+import { isCoarsePointer } from '@/lib/pointer';
 import type { Marker } from '@/lib/markers/load';
 
 const TILE_SIZE = 256;
 const EXTENT: [number, number, number, number] = [0, 0, IMG_W, IMG_H];
+
+/**
+ * How far a pointer may travel between press and release and still count as a
+ * tap rather than a drag.
+ *
+ * OpenLayers defaults this to 1 pixel, which is right for a mouse and wrong for
+ * a finger. Past the tolerance it sets `dragging_`, and `handlePointerUp_` then
+ * skips click emulation altogether — so no `click` event is dispatched at all.
+ * A fingertip tap essentially always drifts more than a pixel, which is why
+ * placing a measure point or opening a place by tapping its marker mostly did
+ * nothing on a phone: the events were never fired, so no handler was at fault.
+ *
+ * 8px is comfortably outside the jitter of a tap and still well inside a
+ * deliberate pan. Mice keep the stock 1px, so a small drag-pan on the desktop
+ * still swallows its click exactly as before.
+ */
+const TAP_MOVE_TOLERANCE_PX = 8;
 
 function clamp(value: number, min: number, max: number): number {
     return Math.min(Math.max(value, min), max);
@@ -64,6 +83,7 @@ export interface MapCore {
 
 export function createMapCore(target: HTMLElement, markers: readonly Marker[]): MapCore {
     const resolutions = makeResolutions();
+    const coarse = isCoarsePointer();
 
     const projection = new Projection({
         code: 'faerun-pixels',
@@ -124,6 +144,22 @@ export function createMapCore(target: HTMLElement, markers: readonly Marker[]): 
         layers: [tileLayer],
         view,
         controls: defaultControls({ attributionOptions: { collapsible: false } }),
+        // See TAP_MOVE_TOLERANCE_PX. Only raised for fingers; a mouse keeps
+        // OpenLayers' own default so desktop click-versus-drag is unchanged.
+        moveTolerance: coarse ? TAP_MOVE_TOLERANCE_PX : 1,
+        /*
+         * Pinch-rotate off. It is a touch-only gesture, so this changes nothing
+         * on the desktop, where alt+shift-drag still rotates.
+         *
+         * Two things went wrong when a pinch-zoom picked up a few degrees of
+         * rotation on the way, as they always do. The rotate-reset control that
+         * `defaults()` also installs has no styling anywhere in this project, so
+         * it appeared as OpenLayers' unstyled white default button in the map's
+         * top-right; and clampCenter() computes the viewport's half-span
+         * assuming an axis-aligned viewport, so a rotated view could be panned
+         * past the image edge into background.
+         */
+        interactions: defaultInteractions({ pinchRotate: false }),
     });
 
     const layers = buildMarkerLayers(map, markers);
@@ -152,11 +188,21 @@ export function createMapCore(target: HTMLElement, markers: readonly Marker[]): 
 
         if (!hasFitted) {
             hasFitted = true;
+            // Touch opens filling the viewport, a mouse opens showing the whole
+            // map. On a phone in portrait the two differ enormously: fitting a
+            // 1.50:1 map into a 0.46:1 window spends about two thirds of the
+            // screen on background and packs every marker into an untappable
+            // clump. Only the opening view differs — minZoom is still derived
+            // from the fit below, so pinching out to the whole of Faerûn works
+            // exactly as it does on the desktop.
+            const openingZoom = coarse
+                ? coverZoomFor(size as [number, number], NATIVE_ZOOM)
+                : fitZoom;
             // The initial zoom, unlike minZoom, may be fractional: setZoom goes
             // through getResolutionForZoom, which interpolates between tile
             // levels. So the opening view can fit the window exactly rather
             // than snapping down to a whole level and shrinking by up to half.
-            view.setZoom(clamp(fitZoom, floorZoom, MAX_ZOOM));
+            view.setZoom(clamp(openingZoom, floorZoom, MAX_ZOOM));
             view.setCenter([IMG_W / 2, IMG_H / 2]);
         }
 

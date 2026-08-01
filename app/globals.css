@@ -58,6 +58,30 @@
     --font-serif: var(--font-spectral), 'Iowan Old Style', Palatino, Georgia, serif;
 }
 
+/*
+ * `coarse:` — a finger rather than a mouse. The whole mobile treatment hangs off
+ * this rather than a width breakpoint, because a phone in landscape is 844px
+ * wide and any sensible width rule would hand it the desktop layout, while a
+ * laptop with a touchscreen reports a fine primary pointer and correctly keeps
+ * it. Declared once here so components can write `coarse:text-base` beside
+ * their other utilities.
+ */
+@custom-variant coarse (@media (pointer: coarse));
+
+/*
+ * Bigger controls for fingers. These four tokens already drive both the
+ * OpenLayers zoom control (styled in this file) and the measure toggle (a CSS
+ * Module), so raising them here is what resizes the whole map control stack at
+ * once — and it cannot reach a mouse, which is the point.
+ */
+@media (pointer: coarse) {
+    :root {
+        /* 44px is the usual floor for a touch target; the stack was at 32. */
+        --map-control-btn: 44px;
+        --map-control-inset: 16px;
+    }
+}
+
 @theme inline {
     --color-bg: var(--bg);
     --color-panel: var(--panel);
@@ -119,7 +143,13 @@ body {
     top: auto !important;
     left: auto !important;
     right: var(--map-control-inset) !important;
-    bottom: var(--map-control-inset) !important;
+    /*
+     * The inset is measured from the safe area rather than the viewport edge,
+     * so on a phone with a home indicator the control sits above it instead of
+     * half under it. env() resolves to 0 everywhere else, which leaves the
+     * desktop position untouched.
+     */
+    bottom: calc(var(--map-control-inset) + env(safe-area-inset-bottom, 0px)) !important;
     display: flex;
     flex-direction: column;
     /*
@@ -165,10 +195,16 @@ body {
 }
 
 /* Solid steps rather than translucent washes, so the jump is the same size
-   wherever the control happens to be sitting. */
-.ol-zoom button:hover {
-    background: #565656;
-    color: #fff;
+   wherever the control happens to be sitting.
+
+   Behind (hover: hover) because a touch browser fires :hover on tap and then
+   has no pointer-leave to take it off again — the button would stay lit until
+   something else was tapped. */
+@media (hover: hover) {
+    .ol-zoom button:hover {
+        background: #565656;
+        color: #fff;
+    }
 }
 
 .ol-zoom button:active {
@@ -264,6 +300,19 @@ body.measuring.measuring-vertex .ol-viewport {
  */
 .measure-cursor-tip.is-action {
     border-color: var(--accent);
+}
+
+/*
+ * The tip tracks a cursor, and a finger leaves none. Touch emits a single
+ * pointermove on its way through a tap, which parks the tip at the point just
+ * placed and leaves it there — a stale label with nothing to move it on. The
+ * measurement itself is unaffected; the readout along the bottom carries the
+ * running total.
+ */
+@media (pointer: coarse) {
+    .measure-cursor-tip {
+        display: none;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
