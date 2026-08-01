@@ -14,7 +14,7 @@
 @import 'ol/ol.css';
 
 /*
- * Design tokens, carried over from the Vite app's css/app.css.
+ * Design tokens.
  *
  * Two palettes live here: the neutral dark chrome (topbar, sidebar, controls)
  * and the warmer "cartographer's codex" palette used by the place panel, which

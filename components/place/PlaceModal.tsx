@@ -13,8 +13,7 @@ interface PlaceModalProps {
  * Native <dialog> wrapper for the intercepted place route.
  *
  * showModal() is used rather than a hand-rolled overlay so we keep the
- * platform's focus trap, inert background, and Escape handling — the same
- * reasons the Vite app used <dialog> (src/popups.js).
+ * platform's focus trap, inert background, and Escape handling.
  *
  * Closing always goes through router.back(), so the URL returns to the map and
  * the browser's forward button reopens the place.

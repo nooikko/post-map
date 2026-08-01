@@ -11,8 +11,8 @@ import type { ArticleMeta, PlaceArticle } from '@/lib/wiki/types';
 // schemas/wiki-article.schema.json. Nothing here touches the remote wiki —
 // the mirror is a build input.
 //
-// Filenames are stored decoded ("Baldur's Gate.json"), so unlike the Vite app's
-// fetch path there is no encodeURIComponent step.
+// Filenames are stored decoded ("Baldur's Gate.json"), so no encodeURIComponent
+// step belongs on this path.
 
 const WIKI_DIR = path.join(process.cwd(), 'public', 'data', 'Faerun', 'wiki');
 

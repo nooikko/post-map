@@ -18,9 +18,8 @@ const HIT_TOLERANCE_TOUCH = 12;
 /**
  * Marker click → place route, plus the hover tooltip and pointer cursor.
  *
- * Cursor and tooltip share a single pointermove handler and one hit-test, as
- * in the Vite app — running forEachFeatureAtPixel twice per frame was the
- * thing that made panning feel heavy.
+ * Cursor and tooltip must share one pointermove handler and one hit-test.
+ * Running forEachFeatureAtPixel twice a frame is what makes panning feel heavy.
  */
 export function useMarkerInteractions(core: MapCore | null, onOpen: (slug: string) => void): void {
     useEffect(() => {

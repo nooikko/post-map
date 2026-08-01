@@ -1,8 +1,7 @@
-// OpenLayers construction. Everything here is deliberately behind functions
-// rather than module-scope singletons: the Vite app built the projection, tile
-// grid, and source at import time (src/map-core.js:22-47), which would run
-// during SSR. Nothing in this module executes until createMapCore is called
-// from an effect.
+// OpenLayers construction. Everything here stays behind functions rather than
+// module-scope singletons: building the projection, tile grid or source at
+// import time would run it during SSR. Nothing in this module executes until
+// createMapCore is called from an effect.
 
 import Feature from 'ol/Feature.js';
 import OLMap from 'ol/Map.js';

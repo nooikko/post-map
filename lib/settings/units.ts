@@ -2,13 +2,9 @@
 
 import { useSyncExternalStore } from 'react';
 
-// Distance units for the measure tool.
-//
-// The Vite app shipped this half-built: settings.js had an empty DEFAULTS, a
-// no-op syncDialogToState, and formatDistance hardcoded to miles, behind a
-// settings dialog whose only working control was the offline download. That
-// download is gone, so the dialog is gone with it and the preference lives
-// inline in the Tools section instead — finished rather than stubbed.
+// Distance units for the measure tool. The preference lives inline in the Tools
+// section rather than behind a settings dialog; there is nothing else to put in
+// one.
 
 export type DistanceUnit = 'mi' | 'km';
 

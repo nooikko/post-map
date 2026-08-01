@@ -1,6 +1,6 @@
-// Build-time MediaWiki scrub. This ran in the browser on every popup in the
-// Vite app (src/wiki.js); doing it once per article at build time removes ~400
-// lines of DOM work from the client and the DOMParser dependency with it.
+// Build-time MediaWiki scrub, done once per article rather than in the browser
+// on every popup — that keeps ~400 lines of DOM work and the DOMParser
+// dependency off the client.
 //
 // linkedom gives a real DOM API under Node, so the selector-and-mutate logic
 // ports across essentially unchanged.
@@ -74,9 +74,10 @@ export function parseFragment(html: string): ParsedRoot {
  *
  * Link handling is a licence obligation, not cosmetics: CC BY-SA attribution
  * requires the relative `/wiki/Foo` hrefs to become absolute backlinks to
- * forgottenrealms.fandom.com. The Vite app unwrapped every anchor to bare text,
- * which satisfied nobody — the wiki's 2017 complaint was specifically about
- * poor backlinking. Zero relative /wiki/ hrefs may survive this function.
+ * forgottenrealms.fandom.com, and poor backlinking is the specific thing the
+ * wiki has objected to in mirrors. Zero relative /wiki/ hrefs may survive this
+ * function, and unwrapping anchors to bare text does not count as handling
+ * them.
  */
 export function cleanArticle(root: Element, document: Document): void {
     root.querySelectorAll(DROP_SELECTORS.join(',')).forEach((el) => el.remove());
@@ -180,7 +181,7 @@ function truncateAppendix(root: Element): void {
     }
 }
 
-/** Collapse whitespace in an element's text, matching the Vite app's `text()`. */
+/** Collapse whitespace in an element's text. */
 export function normalizedText(el: Element | null | undefined): string {
     return el ? (el.textContent ?? '').replace(/\s+/g, ' ').trim() : '';
 }
