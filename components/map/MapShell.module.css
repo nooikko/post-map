@@ -82,19 +82,12 @@
  * it reads as the map resolving, which is what is actually happening.
  */
 /*
- * A wrapper around the image rather than the image itself, and that is a
- * requirement rather than a habit.
- *
- * Insets cannot stretch a replaced element. For an absolutely positioned <img>
- * with `width: auto`, CSS resolves the used width to the image's *intrinsic*
- * width and then discards the over-constrained `right` (CSS 2.1 §10.3.8) — so
- * a poster given all four insets laid itself out at its natural 1400x936 and
- * hung off the right and bottom of the map area. Invisibly, because the canvas
- * covers it, which is exactly why it needed measuring rather than looking at.
- *
- * `width: 100%` on the image would not have fixed it either: percentages
- * resolve against the containing block, which without this wrapper is the
- * whole shell, not the inset box the sidebar leaves behind.
+ * The wrapper carries the insets and the image fills it, because insets cannot
+ * size a replaced element: an absolutely positioned <img> resolves `width:
+ * auto` to its intrinsic width and drops the over-constrained `right`
+ * (CSS 2.1 §10.3.8). `width: 100%` on the image needs this wrapper too — the
+ * percentage would otherwise resolve against the whole shell rather than the
+ * box the sidebar leaves behind.
  */
 .poster {
     z-index: 0;
