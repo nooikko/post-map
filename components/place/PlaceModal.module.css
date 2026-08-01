@@ -8,7 +8,11 @@
     border-radius: 4px;
     padding: 0;
     width: min(880px, 94vw);
-    max-height: 86vh;
+    /* dvh, not vh: vh is fixed to the *largest* viewport, so on a phone whose
+       URL bar is currently showing, 86vh is taller than the 86% of the screen
+       it looks like — the panel runs off the bottom edge. Identical on the
+       desktop, where the two units agree. */
+    max-height: 86dvh;
     overflow: hidden;
     flex-direction: column;
     background: var(--codex-panel);
@@ -40,6 +44,33 @@
     transition: color 0.15s;
 }
 
-.close:hover {
-    color: var(--gold);
+@media (hover: hover) {
+    .close:hover {
+        color: var(--gold);
+    }
+}
+
+/*
+ * On a phone the panel takes the screen rather than floating on it — at 94vw
+ * the remaining 6% is a sliver of blurred map that reads as a rendering
+ * mistake, and the rounded corners and drop shadow are doing no work. The
+ * close control also grows from a 22px glyph to something a thumb can hit.
+ */
+@media (pointer: coarse) {
+    .dialog {
+        width: 100%;
+        max-width: 100%;
+        height: 92dvh;
+        max-height: 92dvh;
+        margin: auto 0 0;
+        border-radius: 12px 12px 0 0;
+        border-bottom: none;
+    }
+
+    .close {
+        min-width: 44px;
+        min-height: 44px;
+        padding: 0;
+        font-size: 26px;
+    }
 }

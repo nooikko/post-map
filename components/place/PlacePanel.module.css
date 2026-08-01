@@ -125,6 +125,18 @@
     text-decoration: underline;
 }
 
+/*
+ * The underline is the only thing marking this as a link — the colour is
+ * inherited — so where there is no hover to reveal it, it has to be there from
+ * the start. This is the redirect page's one route onward.
+ */
+@media (hover: none) {
+    .redirect a {
+        text-decoration: underline;
+        text-underline-offset: 2px;
+    }
+}
+
 .mutedLine {
     color: var(--ink-muted);
     font-style: italic;
@@ -254,5 +266,34 @@
 
     .name {
         font-size: 25px;
+    }
+
+    /*
+     * The header is one baseline-aligned row: swatch · name · type seal ·
+     * close. The seal is `white-space: nowrap`, so on a narrow screen it is the
+     * name that gives — a long one squeezes to a couple of characters per line
+     * while the seal keeps its full width. Letting the row wrap and taking some
+     * of the seal's generous tracking back gives the name the space instead.
+     */
+    .header {
+        flex-wrap: wrap;
+        gap: 8px 10px;
+        padding: 14px 16px 12px;
+    }
+
+    .type {
+        font-size: 9px;
+        letter-spacing: 1.4px;
+        padding: 3px 7px;
+    }
+
+    /* A single unbroken name longer than the panel should break rather than
+       push the header wider than the screen. */
+    .name {
+        overflow-wrap: anywhere;
+    }
+
+    .prose {
+        padding: 18px 16px 22px;
     }
 }

@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import { Cormorant_Garamond, Spectral } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
@@ -28,6 +28,28 @@ const spectral = Spectral({
 export const metadata: Metadata = {
     title: `Faerûn · ${PROJECT_NAME}`,
     description: `${PROJECT_NAME} — an interactive map of Faerûn with place articles from the Forgotten Realms Wiki.`,
+};
+
+/**
+ * Next injects `width=device-width, initial-scale=1` when this is absent, which
+ * is most of what a page needs. The additions here are for a map that runs to
+ * every edge of the screen:
+ *
+ *  - `viewportFit: 'cover'` lets the layout reach under a notch and the home
+ *    indicator, and is also what makes `env(safe-area-inset-*)` report anything
+ *    other than zero — the map controls and the bottom sheet use those to stay
+ *    clear of the indicator.
+ *  - `themeColor` matches --bg, so the browser chrome above the map is the same
+ *    near-black rather than the default white.
+ *
+ * Pinch zoom is deliberately not capped. A `maximum-scale` here would be an
+ * accessibility regression, and the map has its own zoom besides.
+ */
+export const viewport: Viewport = {
+    width: 'device-width',
+    initialScale: 1,
+    viewportFit: 'cover',
+    themeColor: '#1a1a1a',
 };
 
 interface RootLayoutProps {

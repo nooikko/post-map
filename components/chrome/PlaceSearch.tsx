@@ -66,7 +66,13 @@ export function PlaceSearch({ markers, onSelect }: PlaceSearchProps) {
                 autoComplete="off"
                 spellCheck={false}
                 placeholder={`Type a place name… (${markers.length} known)`}
-                className="w-full rounded-[5px] border border-edge bg-white/4 px-2.5 py-2 text-[13px] text-panel-fg outline-none placeholder:text-muted focus:border-accent focus:bg-accent/6"
+                /*
+                 * coarse:text-base is not a readability tweak — iOS Safari
+                 * zooms the whole page in when a focused input's text is under
+                 * 16px, which on a full-bleed map means the layout lurches
+                 * sideways the moment the keyboard opens.
+                 */
+                className="w-full rounded-[5px] border border-edge bg-white/4 px-2.5 py-2 text-[13px] text-panel-fg outline-none coarse:py-2.5 coarse:text-base placeholder:text-muted focus:border-accent focus:bg-accent/6"
             />
 
             {needle && (
@@ -79,7 +85,7 @@ export function PlaceSearch({ markers, onSelect }: PlaceSearchProps) {
                             <button
                                 type="button"
                                 onClick={() => go(marker)}
-                                className="grid w-full cursor-pointer grid-cols-[14px_1fr_auto] items-center gap-2 border-b border-white/3 px-2.5 py-[7px] text-left text-[13px] last:border-b-0 hover:bg-accent/12"
+                                className="grid w-full cursor-pointer grid-cols-[14px_1fr_auto] items-center gap-2 border-b border-white/3 px-2.5 py-[7px] text-left text-[13px] last:border-b-0 coarse:min-h-11 coarse:text-[15px] hover:bg-accent/12"
                             >
                                 <span
                                     aria-hidden="true"

@@ -47,9 +47,11 @@
         color 120ms ease;
 }
 
-.clear:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: var(--panel-fg);
+@media (hover: hover) {
+    .clear:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--panel-fg);
+    }
 }
 
 .clear:active {
@@ -63,6 +65,33 @@
 .clear:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: -2px;
+}
+
+/*
+ * On a phone the pill is a bar. Centring a nowrap pill on a 390px screen puts
+ * the instruction line off both edges at once, so it spans the width instead
+ * and wraps, clearing the home indicator at the bottom and the zoom stack in
+ * the corner.
+ */
+@media (pointer: coarse) {
+    .readout {
+        left: 12px;
+        /* Stops short of the zoom/measure column rather than running under it. */
+        right: calc(var(--map-control-inset) + var(--map-control-btn) + 12px);
+        transform: none;
+        bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .distance {
+        white-space: normal;
+    }
+
+    .clear {
+        /* A comfortable target, and it should not shrink as the text wraps. */
+        flex: 0 0 auto;
+        min-width: 64px;
+        font-size: 13px;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {

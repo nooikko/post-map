@@ -22,7 +22,7 @@ export function Credits() {
         <div className="border-t border-edge pt-4">
             <SectionHeading>Credits &amp; licence</SectionHeading>
 
-            <p className="mb-2 text-[11px] leading-relaxed text-muted">
+            <p className="mb-2 text-[11px] leading-relaxed text-muted coarse:text-[13px]">
                 Place articles come from the{' '}
                 <Ext href={`https://${WIKI_HOST}/`}>{WIKI_NAME}</Ext>, used under{' '}
                 <Ext href={WIKI_LICENSE.url} license>
@@ -31,24 +31,24 @@ export function Credits() {
                 . Article text on this site is available under the same licence.
             </p>
 
-            <p className="mb-2 text-[11px] leading-relaxed text-muted">
+            <p className="mb-2 text-[11px] leading-relaxed text-muted coarse:text-[13px]">
                 Map tiles were cut by this project from the published Faerûn map. The
                 artwork is Wizards of the Coast&rsquo;s.
             </p>
 
             {/* Required verbatim — set apart so it reads as a legal notice
                 rather than blurb, but keep it legible. */}
-            <p className="mb-2 rounded-[2px] border-l-2 border-gold-line bg-white/3 px-2.5 py-2 text-[10.5px] leading-relaxed text-[#7f7f7f]">
+            <p className="mb-2 rounded-[2px] border-l-2 border-gold-line bg-white/3 px-2.5 py-2 text-[10.5px] leading-relaxed text-[#7f7f7f] coarse:text-[12.5px]">
                 {WOTC_NOTICE}
             </p>
 
-            <p className="mb-2 text-[11px] leading-relaxed text-muted">
+            <p className="mb-2 text-[11px] leading-relaxed text-muted coarse:text-[13px]">
                 {NON_AFFILIATION_NOTICE}
             </p>
 
             {/* An internal route, so next/link rather than the Ext helper
                 below — nothing to open in a new tab and no rel to set. */}
-            <p className="text-[11px] leading-relaxed text-muted">
+            <p className="text-[11px] leading-relaxed text-muted coarse:text-[13px]">
                 <Link href="/privacy" className="text-accent no-underline hover:underline">
                     Privacy
                 </Link>{' '}

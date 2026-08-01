@@ -12,8 +12,10 @@
 .toggle {
     position: absolute;
     right: var(--map-control-inset);
+    /* Matches .ol-zoom's safe-area-aware inset, so the pair stays stacked. */
     bottom: calc(
-        var(--map-control-inset) + var(--map-control-zoom-h) + var(--map-control-gap)
+        var(--map-control-inset) + env(safe-area-inset-bottom, 0px) +
+            var(--map-control-zoom-h) + var(--map-control-gap)
     );
     z-index: 400;
 
@@ -40,9 +42,11 @@
         color 120ms ease;
 }
 
-.toggle:hover {
-    background: #565656;
-    color: #fff;
+@media (hover: hover) {
+    .toggle:hover {
+        background: #565656;
+        color: #fff;
+    }
 }
 
 .toggle:active {
@@ -65,8 +69,18 @@
     color: #fff;
 }
 
-.active:hover {
-    background: #5b9ae8;
+@media (hover: hover) {
+    .active:hover {
+        background: #5b9ae8;
+    }
+}
+
+/* The emoji glyph is sized against the 32px button; at 44px it needs to grow
+   with it or the control reads as mostly empty. */
+@media (pointer: coarse) {
+    .toggle {
+        font-size: 19px;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {

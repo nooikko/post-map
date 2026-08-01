@@ -38,7 +38,10 @@
 }
 
 /* Narrow viewports: the panel goes single-column, so match its padding. */
-@media (max-width: 700px) {
+/* 720px, matching PlacePanel and InfoboxRail. At 700 there was a 20px band in
+   which the panel had already gone single-column but the credit still carried
+   its wider desktop margins, so it sat inset from the prose above it. */
+@media (max-width: 720px) {
     .credit {
         margin-left: 16px;
         margin-right: 16px;

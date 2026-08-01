@@ -112,3 +112,24 @@
     background: var(--gold-soft);
     color: #e9dcbd;
 }
+
+/*
+ * Below the same 720px where PlacePanel stops laying the rail out beside the
+ * prose, the rail is a full-width block underneath it — so the border that
+ * separated the two columns is now a line down its left edge, separating it
+ * from nothing. It becomes the horizontal rule the stacked layout actually
+ * wants.
+ */
+@media (max-width: 720px) {
+    .rail {
+        border-left: none;
+        border-top: 1px solid var(--gold-line);
+    }
+
+    /* The fixed track and value columns were sized for a rail about a third of
+       a desktop panel wide. Full-width they leave the name stranded far from
+       its bar, so let the bar take the space it needs and no more. */
+    .bar {
+        grid-template-columns: minmax(0, 1fr) minmax(72px, 96px) 34px;
+    }
+}

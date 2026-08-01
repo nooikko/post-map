@@ -36,13 +36,13 @@ export function LayerToggles() {
                 {LAYERS.map((def) => (
                     <label
                         key={def.key}
-                        className="grid cursor-pointer grid-cols-[18px_18px_1fr_auto] items-center gap-2.5 rounded px-1 py-1.5 select-none hover:bg-white/4"
+                        className="grid cursor-pointer grid-cols-[18px_18px_1fr_auto] items-center gap-2.5 rounded px-1 py-1.5 select-none coarse:min-h-11 coarse:grid-cols-[22px_18px_1fr_auto] coarse:px-2 hover:bg-white/4"
                     >
                         <input
                             type="checkbox"
                             checked={!hidden.has(def.key)}
                             onChange={() => toggle(def.key)}
-                            className="m-0 cursor-pointer accent-accent"
+                            className="m-0 cursor-pointer accent-accent coarse:size-[18px]"
                         />
                         <span
                             aria-hidden="true"
@@ -53,8 +53,8 @@ export function LayerToggles() {
                                 height: def.radius * 2,
                             }}
                         />
-                        <span className="text-[13px]">{def.label}</span>
-                        <span className="text-[11px] text-muted tabular-nums">
+                        <span className="text-[13px] coarse:text-[15px]">{def.label}</span>
+                        <span className="text-[11px] text-muted tabular-nums coarse:text-[13px]">
                             {core?.layers[def.key]?.count ?? 0}
                         </span>
                     </label>
