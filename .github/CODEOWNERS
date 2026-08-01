@@ -6,9 +6,12 @@
 # without the maintainer looking at it, because these are obligations rather
 # than preferences.
 /LICENSE                   @nooikko
+/LICENSES/                 @nooikko
 /NOTICE                    @nooikko
+/REUSE.toml                @nooikko
 /SECURITY.md               @nooikko
 /lib/attribution.ts        @nooikko
+/lib/licence-scope.ts      @nooikko
 /lib/wiki/sanitize.ts      @nooikko
 /next.config.ts            @nooikko
 

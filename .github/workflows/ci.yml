@@ -36,8 +36,8 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
-      - name: Check NOTICE is in sync
-        run: pnpm notice:check
+      - name: Check NOTICE and REUSE.toml are in sync
+        run: pnpm licence:check
 
       # The build is the test suite: it prerenders every place page, so a
       # broken wiki pipeline or a bad marker file fails here rather than in

@@ -88,19 +88,28 @@ see [PRIVACY.md](PRIVACY.md).
 
 ## Licensing
 
-Three different sets of terms apply, and the most restrictive governs:
+MIT covers this repository **except** for the paths below, each of which is
+governed by its own terms. Where several apply at once, the most restrictive
+governs.
 
-| | Terms |
+| Path | Terms |
 |---|---|
-| This source code | MIT — see [LICENSE](LICENSE) |
-| Article text | CC BY-SA 3.0, credited on every article view |
-| Map artwork | Wizards of the Coast, under the Fan Content Policy |
-| Tile pyramid | Cut by this project; the artwork in it is WotC's |
+| Everything not listed below | MIT — see [LICENSE](LICENSE) |
+| `public/tiles/**`, `docs/screenshot.webp` | Wizards of the Coast, under the Fan Content Policy |
+| `public/data/Faerun/wiki/**` | CC BY-SA 3.0, credited on every article view |
+| `public/data/Faerun/*.json` | Origin untraceable — no claim asserted, no permission granted |
 
-The Fan Content Policy governs the map and requires that the site stay free to
-access — no paywall, subscription, or gated download. It is revocable permission
-rather than a licence and can be withdrawn at any time. If you fork this, that
-applies to you too.
+[REUSE.toml](REUSE.toml) carries the same split in machine-readable form,
+[LICENSES/](LICENSES) holds the text of each licence named above, and
+[NOTICE](NOTICE) is the long-form prose version.
+
+Two things are easy to get wrong when forking. Share-alike travels with an
+*adaptation* of the article text rather than with that directory, so anything
+built out of it carries CC BY-SA 3.0 too — a prebuilt search index most of all,
+since by then it no longer looks like text. And the Fan Content Policy requires
+that the site stay free to access — no paywall, subscription, or gated download.
+It is revocable permission rather than a licence and can be withdrawn at any
+time. Both apply to you as much as to this project.
 
 ### If you hold rights in something used here
 
@@ -122,5 +131,11 @@ used under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
 The map tiles are this project's own cut of the published Faerûn map. The artwork
 in them is Wizards of the Coast's — see [docs/tile-pipeline.md](docs/tile-pipeline.md)
 for how the pyramid was produced.
+
+The marker data — which 297 places are pinned, and where they sit — came from a
+forum that went offline years ago. The domain now serves an unrelated site and
+the data has circulated since with no attribution attached to it, so there is
+nobody left to credit. This project claims nothing in it. If you compiled it, or
+you know who did, please get in touch.
 
 Full attributions are in [NOTICE](NOTICE).

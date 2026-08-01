@@ -2,14 +2,19 @@
   "name": "post-map",
   "private": true,
   "type": "module",
+  "license": "MIT",
   "packageManager": "pnpm@10.26.2",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
+    "licence": "pnpm run notice && pnpm run reuse",
+    "licence:check": "pnpm run notice:check && pnpm run reuse:check",
     "notice": "node --experimental-strip-types scripts/gen-notice.mjs",
     "notice:check": "node --experimental-strip-types scripts/gen-notice.mjs --check",
+    "reuse": "node --experimental-strip-types scripts/gen-reuse.mjs",
+    "reuse:check": "node --experimental-strip-types scripts/gen-reuse.mjs --check",
     "fetch:redirects": "node --experimental-strip-types scripts/fetch-redirect-targets.ts"
   },
   "dependencies": {

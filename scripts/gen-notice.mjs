@@ -21,15 +21,29 @@ const {
     WOTC_NOTICE,
 } = await import('../lib/attribution.ts');
 
+const { LICENCE_EXCEPTIONS, PROJECT_LICENCE } = await import('../lib/licence-scope.ts');
+
+// Widest path column, so the table lines up whatever the globs grow into.
+const pathWidth = Math.max(...LICENCE_EXCEPTIONS.flatMap((e) => e.paths.map((p) => p.length)));
+
+const scopeTable = LICENCE_EXCEPTIONS.flatMap((e) =>
+    e.paths.map((p) => `    ${p.padEnd(pathWidth)}   ${e.spdxId}`),
+).join('\n');
+
 const NOTICE = `${PROJECT_NAME}
 ${'='.repeat(PROJECT_NAME.length)}
 
-This file is generated from lib/attribution.ts by scripts/gen-notice.mjs.
-Edit that module, then run \`pnpm notice\`.
+This file is generated from lib/attribution.ts and lib/licence-scope.ts by
+scripts/gen-notice.mjs. Edit those modules, then run \`pnpm notice\`.
 
-The MIT licence in LICENSE covers this project's own source code. It does NOT
-cover the map artwork or the article text, each of which is governed by its own
-terms below.
+The ${PROJECT_LICENCE} licence in LICENSE covers this repository EXCEPT for the paths
+below, each of which is governed by its own terms. Everything not listed here —
+the application code, the configs, the docs, the schemas — is ${PROJECT_LICENCE}.
+
+${scopeTable}
+
+REUSE.toml carries the same split in machine-readable form, and LICENSES/ holds
+the text of each licence named above.
 
 
 Article text — ${WIKI_NAME}
@@ -43,6 +57,15 @@ Article text on this site remains available under that same licence
 (share-alike). Every article view carries an attribution line naming the source
 article, linking back to it, and disclosing that the text has been modified: we
 strip images, drop the reference apparatus, and truncate appendix sections.
+
+Share-alike travels with the adaptation, not with the directory. Anything built
+out of this text carries ${WIKI_LICENSE.label} too, wherever it ends up being stored — a
+place index holding article-derived facts, a prebuilt search index over the
+prose, precomputed cross-references or backlinks, generated summaries. The
+search index is the one that catches people out, because by then it no longer
+looks like text. Nothing of that kind is committed today: the indices this
+project builds live in memory during the build and are never written out. If one
+ever is written out, it belongs on the list above.
 
 
 Map artwork — Wizards of the Coast
@@ -63,9 +86,28 @@ Tile pyramid
 --------------------------------------------------------------------------
 The tiles served here were cut by this project from the same Wizards of the
 Coast map described above. The artwork in them is theirs, and the Fan Content
-Policy above is what governs their use.
+Policy above is what governs their use. Cutting a pyramid creates no new rights
+in the picture, and neither does screenshotting it: docs/screenshot.webp is
+covered for exactly the same reason.
 
 How the pyramid was produced is recorded in docs/tile-pipeline.md.
+
+
+Marker data — origin no longer traceable
+--------------------------------------------------------------------------
+The marker data in public/data/Faerun/*.json — 297 place names with the pixel
+coordinates that locate them on the map — was not compiled by this project. It
+came from a forum that went offline years ago; the domain now serves an
+unrelated site, and the data has circulated since with no attribution attached
+to it. Whoever assembled it cannot be identified from what survives.
+
+This project therefore asserts no claim over it and grants no permission over
+it. It is recorded as untraceable rather than quietly folded into the ${PROJECT_LICENCE}
+grant, because granting rights this project does not hold would be the worse
+error.
+
+If you compiled it, or you know who did, the section below is the way to reach
+us.
 
 
 Rights holders — corrections and removals

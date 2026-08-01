@@ -32,9 +32,13 @@ Closes #
 
 <!-- These are obligations, so they get their own gate. -->
 
-- [ ] `lib/attribution.ts` was the thing edited, not `NOTICE` by hand
-- [ ] `pnpm notice:check` passes
+- [ ] `lib/attribution.ts` or `lib/licence-scope.ts` was the thing edited — not
+      `NOTICE`, `REUSE.toml`, or `LICENSES/LicenseRef-*.txt` by hand
+- [ ] `pnpm licence:check` passes
 - [ ] Every article view still carries its CC BY-SA credit and modification notice
+- [ ] If a new top-level path holds third-party material, it is excluded in
+      `lib/licence-scope.ts` — MIT covers the repo by default, so anything not
+      listed there is being given away
 
 ## If this touches `next.config.ts`
 

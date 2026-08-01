@@ -175,16 +175,18 @@ points at it. Changing what is mounted here means changing that page.
 
 ## Scripts
 
-Both run on `node --experimental-strip-types`.
+All three run on `node --experimental-strip-types`.
 
 | Script | Purpose |
 |---|---|
-| `scripts/gen-notice.mjs` | Generate `NOTICE` from `lib/attribution.ts` |
+| `scripts/gen-notice.mjs` | Generate `NOTICE` from `lib/attribution.ts` + `lib/licence-scope.ts` |
+| `scripts/gen-reuse.mjs` | Generate `REUSE.toml` and `LICENSES/LicenseRef-*.txt` from the same two |
 | `scripts/fetch-redirect-targets.ts` | Top up the wiki mirror with redirect targets |
 
 Node does not resolve the `@/` path alias, so anything a script imports must be
-dependency-free. That is why `lib/attribution.ts` and `lib/wiki/mirror.ts`
-import nothing — keep it that way or the scripts stop running.
+dependency-free. That is why `lib/attribution.ts`, `lib/licence-scope.ts`, and
+`lib/wiki/mirror.ts` import nothing — keep it that way or the scripts stop
+running.
 
 `lib/wiki/mirror.ts` holds what the mirror's reader and writer must agree on:
 the redirect selector, the image-drop lists, and the filename rules
@@ -195,8 +197,21 @@ will never follow.
 ## Attribution
 
 `lib/attribution.ts` is the single source of truth for every licensing fact the
-UI shows, and `NOTICE` is generated from it — `pnpm notice:check` fails if the
+UI shows, and `NOTICE` is generated from it — `pnpm licence:check` fails if the
 two have drifted. The per-article CC BY-SA credit renders from
 `components/place/ArticleCredit.tsx` on every article view; the WotC fan-content
 notice renders from `components/chrome/Credits.tsx`. Both are licence
 conditions, not decoration.
+
+`lib/licence-scope.ts` is the parallel source of truth for *which paths* the MIT
+licence does not reach. It feeds `NOTICE`, `REUSE.toml`, and the `LicenseRef-`
+texts in `LICENSES/`. It is deliberately not part of `lib/attribution.ts`: that
+module is imported by client components, and path globs have no business in the
+browser bundle.
+
+The scope is an exclusion list, so **MIT covers anything not named there**. That
+is the safe direction — the previous allowlist left the root configs, `docs/`,
+and `schemas/` with no stated licence at all — but it does mean a new directory
+of third-party material is given away unless it is added. `LICENSE` itself is
+kept as pristine MIT text with nothing appended, because GitHub's `licensee`
+stops recognising it otherwise and reports the whole repository as `NOASSERTION`.

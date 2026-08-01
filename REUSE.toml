@@ -1,0 +1,30 @@
+# Generated from lib/licence-scope.ts by scripts/gen-reuse.mjs.
+# Edit that module, then run `pnpm reuse`.
+#
+# MIT covers this repository EXCEPT the paths annotated below. New directories
+# therefore default to permissive. The prose version of this split is in NOTICE.
+
+version = 1
+
+[[annotations]]
+path = "**"
+SPDX-FileCopyrightText = "Copyright (c) 2026 Quinn Penney"
+SPDX-License-Identifier = "MIT"
+
+# Map artwork, and the tiles and screenshot cut from it
+[[annotations]]
+path = ["public/tiles/**", "docs/screenshot.webp"]
+SPDX-FileCopyrightText = "Copyright (c) Wizards of the Coast LLC"
+SPDX-License-Identifier = "LicenseRef-WotC-Fan-Content"
+
+# Mirrored article text, and anything derived from it
+[[annotations]]
+path = "public/data/Faerun/wiki/**"
+SPDX-FileCopyrightText = "Copyright (c) Forgotten Realms Wiki contributors"
+SPDX-License-Identifier = "CC-BY-SA-3.0"
+
+# Marker data, origin no longer traceable
+[[annotations]]
+path = "public/data/Faerun/*.json"
+SPDX-FileCopyrightText = "NOASSERTION"
+SPDX-License-Identifier = "LicenseRef-Untraceable-Origin"
