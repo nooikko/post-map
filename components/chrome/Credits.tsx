@@ -2,6 +2,8 @@ import Link from 'next/link';
 
 import {
     NON_AFFILIATION_NOTICE,
+    PROJECT_NAME,
+    REPO_URL,
     WIKI_HOST,
     WIKI_LICENSE,
     WIKI_NAME,
@@ -48,11 +50,36 @@ export function Credits() {
 
             {/* An internal route, so next/link rather than the Ext helper
                 below — nothing to open in a new tab and no rel to set. */}
-            <p className="text-[11px] leading-relaxed text-muted coarse:text-[13px]">
+            <p className="mb-2 text-[11px] leading-relaxed text-muted coarse:text-[13px]">
                 <Link href="/privacy" className="text-accent no-underline hover:underline">
                     Privacy
                 </Link>{' '}
                 — what this site measures, and what it does not.
+            </p>
+
+            {/*
+              * Touch only, and it closes a hole rather than adding a nicety.
+              *
+              * There are two ways to the repository and each belongs to one
+              * layout. On a desktop it is the GitHub corner in the sidebar's
+              * bottom-left, plus the topbar icon while the sidebar is shut. On
+              * touch there is no corner — MapShell does not render one — and
+              * the topbar icon is hidden the moment the panel opens, which on
+              * touch means the drawer. So opening the drawer took the only
+              * remaining link off the screen: the sheet is a modal <dialog>, so
+              * even were the icon still painted up there it would be behind a
+              * backdrop and inert.
+              *
+              * `hidden coarse:block` rather than a prop from MapShell's pointer
+              * hook, deliberately. The same @media (pointer: coarse) query is
+              * what hides `.corner` in MapShell.module.css, so the two are
+              * exactly complementary by construction and cannot both vanish. A
+              * hook-driven flag would also arrive a frame after hydration and
+              * pop this line in.
+              */}
+            <p className="hidden text-[11px] leading-relaxed text-muted coarse:block coarse:text-[13px]">
+                <Ext href={REPO_URL}>{PROJECT_NAME} on GitHub</Ext> — the source, and
+                where to report a problem.
             </p>
         </div>
     );
