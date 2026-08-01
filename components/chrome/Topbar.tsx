@@ -29,16 +29,30 @@ export function Topbar({ panelOpen, onTogglePanel, panelLabel }: TopbarProps) {
                     <rect x="2" y="11" width="12" height="1.6" rx="0.5" fill="currentColor" />
                 </svg>
             </button>
-            <span className="font-bold tracking-[0.4px]">
+            {/*
+              * The page's h1, here rather than in the sidebar because the
+              * topbar is the only chrome on screen at every viewport — the
+              * sheet it becomes on touch starts closed, and a heading should
+              * never be behind a tap.
+              */}
+            <h1 className="font-bold tracking-[0.4px]">
                 {PROJECT_NAME}
-                <span className="text-muted before:mx-2 before:content-['·']">Faerûn</span>
-            </span>
+                <span className="font-normal text-muted before:mx-2 before:content-['·']">
+                    Map of Faerûn
+                </span>
+            </h1>
             {/*
               * Only while the panel is closed — open, the GitHub corner in the
               * sidebar's bottom-left is the link, and showing both would put
-              * the same destination on screen twice. On touch there is no
-              * corner, and the panel is a sheet that covers this bar anyway, so
-              * the same rule leaves the link visible whenever it can be seen.
+              * the same destination on screen twice.
+              *
+              * On touch that handover used to drop the link entirely: there is
+              * no corner on a coarse pointer, so opening the drawer hid this
+              * icon and replaced it with nothing. Leaving the icon up instead
+              * would not have worked either — the drawer is a modal <dialog>,
+              * so this bar sits behind its backdrop and is inert while it is
+              * open. The touch half of the pair is a line in Credits, which
+              * rides inside the drawer; see the note there.
               *
               * ml-auto rather than a spacer element, so it stays pinned right
               * whatever the title runs to.

@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 
-import { PROJECT_NAME } from '@/lib/attribution';
 import { findMarkerBySlug, loadMarkers, type Marker } from '@/lib/markers/load';
 import { loadArticle } from '@/lib/wiki/load';
 import type { PlaceArticle } from '@/lib/wiki/types';
@@ -35,7 +34,8 @@ export async function placeMetadata(slug: string): Promise<Metadata> {
     const name = place?.marker.name ?? 'Unknown place';
 
     return {
-        title: `${name} · ${PROJECT_NAME}`,
+        // Just the name: app/layout.tsx's title template appends "· Post Map".
+        title: name,
         robots: { index: false, follow: false },
     };
 }

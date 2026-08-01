@@ -29,10 +29,13 @@ usual categories. What is genuinely in scope:
   markup past that allowlist and into a rendered page is the highest-value bug
   here.
 - **Content-Security-Policy weaknesses** in `next.config.ts` — a bypass, or a
-  directive that is looser than it needs to be.
+  directive that is looser than it needs to be. See the known issue below first.
 - **Path traversal in the mirror tooling.** `scripts/fetch-redirect-targets.ts`
   turns wiki page titles into filenames and guards this with `isSafeName`; a way
   around that guard counts.
+- **Escaping the JSON-LD block.** The map page emits one inline
+  `application/ld+json` script (`components/seo/JsonLd.tsx`). Browsers do not
+  execute that type, but a way to break out of it is still worth reporting.
 - **Dependency vulnerabilities** that are actually reachable from the deployed
   site rather than only from the build toolchain.
 
@@ -47,11 +50,13 @@ usual categories. What is genuinely in scope:
   no authentication, and no sessions.
 - Findings from automated scanners with no demonstrated impact.
 
-## A note on the CSP
+## Known issue: `script-src-elem 'unsafe-inline'`
 
-`script-src-elem` allows `'unsafe-inline'`, and this is deliberate rather than
-an oversight. Pages are statically prerendered with no middleware, so Next.js
-cannot mint a per-request nonce for its inline bootstrap scripts. The
-compensating control is `script-src-attr 'none'`, which blocks inline event
-handlers. Reports pointing out that `'unsafe-inline'` is present are already
-known; reports showing a way to *exploit* it are not, and are welcome.
+The CSP allows inline `<script>` elements. This is a deliberate compromise with
+a compensating control (`script-src-attr 'none'`), not an oversight, and the
+reasoning is in
+[docs/architecture.md](docs/architecture.md#security) — deliberately not
+repeated here, so the two cannot come to disagree.
+
+Reports pointing out that `'unsafe-inline'` is present are already known.
+Reports showing a way to *exploit* it are not, and are welcome.

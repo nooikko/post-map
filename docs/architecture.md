@@ -2,26 +2,11 @@
 
 How Post Map is put together, for anyone reading or changing the code.
 
-## A note on "the Vite app"
-
-Comments through `lib/` and `components/` refer to *the Vite app*. That is this
-project's first implementation: a static Vite + vanilla-JS build (`src/*.js`, a
-service worker, a Python tile and wiki toolchain) that this Next.js version
-replaced wholesale. It is not in the tree — only in git history, before the
-port.
-
-Those references are kept because they carry the reason a thing is shaped the
-way it is: a bug that version had, a cost it paid, a behaviour worth matching.
-`lib/settings/units.ts` explaining that units shipped half-built, or
-`useMarkerInteractions.ts` noting that hit-testing ran twice a frame, is the
-record of why the current code does not. Read them as "the previous
-implementation", not as a module you can go and open.
-
 ## Stack
 
 Next.js 16 (App Router) · TypeScript · Tailwind 4 · OpenLayers 10, deployed on
 Vercel. There is no database and no server code of this project's own. Every
-page is prerendered at build time — 600 routes — and served from the CDN; the
+page is prerendered at build time — 601 routes — and served from the CDN; the
 GeoJSON and article JSON under `public/data/` are build inputs read from disk,
 not runtime API calls.
 
@@ -35,19 +20,23 @@ app/
   place/[slug]/               standalone place page
   @modal/(.)place/[slug]/     the same place, intercepted over the map
   privacy/                    privacy policy (canonical; PRIVACY.md points here)
-  robots.ts
+  robots.ts  sitemap.ts
 components/
-  map/                        MapShell, measure tool, marker interactions
+  map/                        MapShell, poster, measure tool, marker interactions
   place/                      PlacePanel, InfoboxRail, ArticleCredit
-  chrome/                     Topbar, search, layer toggles, credits
+  chrome/                     Topbar, bottom sheet, search, layers, about, credits
+  seo/                        JsonLd
 lib/
   map/                        projection, tile grid, geometry, styles
   wiki/                       load -> clean -> sanitize -> infobox
-  markers/  place/  settings/
+  seo/                        every string a search engine is told, structured data
+  markers/  place/  settings/  pointer.ts
 public/
   tiles/                      z0-z6 WebP pyramid (1296 tiles)
+  faerun-map.webp             the same map flat, behind the canvas
+  faerun-map-card.jpg         the same map again, as the 1200x630 social card
   data/Faerun/                8 GeoJSON categories + 310 mirrored articles
-scripts/                      build-time tooling (see below)
+scripts/                      generators, run by hand (see below)
 ```
 
 ## The map
@@ -71,6 +60,32 @@ from `/tiles/{z}/{x}/{y}.webp` with a one-year immutable cache. They are
 committed rather than generated at build time; see
 [`tile-pipeline.md`](tile-pipeline.md).
 
+`components/map/MapPoster.tsx` renders a flat `<img>` of the whole map behind
+the canvas, composited from the pyramid by `scripts/gen-map-images.mjs`. It must
+render *before* the map container, not inside it: OpenLayers appends its
+viewport to whatever element it is handed, so a sibling image in there would lay
+out above the map rather than behind it.
+
+## The chrome
+
+`ChromeContents.tsx` is the controls themselves — search, units, layers, about,
+credits — with no opinion about what holds them. The desktop sidebar and the
+touch bottom sheet each render exactly one of those, so the two layouts cannot
+drift into offering different things.
+
+**The switch is `(pointer: coarse)`, not a width breakpoint** (`lib/pointer.ts`):
+a phone in landscape is 844px wide and a touchscreen laptop reports `pointer:
+fine`, so width gets both backwards. It is read twice — once in CSS, once
+through `useCoarsePointer` — and the React side starts `false` and flips after
+mount, because the page is prerendered and answering honestly during render
+would break hydration. The CSS covers the gap, so nothing flashes.
+
+One `panelOpen` flag drives both containers, and they want opposite defaults:
+the sidebar opens with the app, the sheet has to be asked for. Hence the effect
+that closes it once the pointer type settles. `BottomSheet` opens through
+`showModal()` rather than the `open` attribute, which is what puts it in the top
+layer with a backdrop and a focus trap.
+
 ## Routing
 
 Places get real URLs. Clicking a marker pushes `/place/<slug>`, which the
@@ -85,6 +100,22 @@ end up on one but not the other.
 Place pages are `noindex` and disallowed in `robots.txt` (`app/robots.ts` and
 `lib/place/get.ts`). This is intentional — the site should not compete with the
 Forgotten Realms Wiki in search results for the wiki's own text.
+
+### Page metadata
+
+`lib/seo/site.ts` holds the strings, `lib/seo/jsonLd.ts` the structured data. Why
+each is worded as it is belongs in those files. Three things about Next's
+metadata will bite:
+
+- **`openGraph` is replaced, not merged.** A page declaring it drops the
+  layout's entire block — `og:type`, `og:site_name`, `og:locale` — silently.
+  Pages build the whole thing through `openGraphFor()` for that reason.
+- **Canonicals cannot be inherited.** A relative `canonical` in the root layout
+  resolves against whatever route is rendering, declaring every page a duplicate
+  of the map. Each page declares its own; `metadataBase` makes them absolute.
+- **Nothing may contradict `app/robots.ts`.** The sitemap omits the place routes
+  and no structured-data node describes one. `/tiles/` must stay crawlable, or
+  Googlebot renders the page as an empty box.
 
 ### Slugs
 
@@ -141,6 +172,10 @@ injected markup and the CSP is the backstop, not the reverse. `style-src-attr`
 stays `'unsafe-inline'` because React writes style props as attributes, which
 cannot carry a nonce.
 
+The same allowance covers the map page's `application/ld+json` block
+(`components/seo/JsonLd.tsx`), which admits nothing new — browsers do not
+execute that type. `SECURITY.md` points here rather than restating any of it.
+
 Development relaxes three directives and drops `upgrade-insecure-requests`.
 Next's dev overlay injects its stylesheet into a shadow root at runtime, so
 `style-src-elem` needs `'unsafe-inline'` or the overlay renders as unstyled
@@ -175,18 +210,25 @@ points at it. Changing what is mounted here means changing that page.
 
 ## Scripts
 
-All three run on `node --experimental-strip-types`.
+None of these run during `pnpm build`. Each produces a committed artefact, and
+is run by hand when the thing it derives from changes.
 
 | Script | Purpose |
 |---|---|
 | `scripts/gen-notice.mjs` | Generate `NOTICE` from `lib/attribution.ts` + `lib/licence-scope.ts` |
 | `scripts/gen-reuse.mjs` | Generate `REUSE.toml` and `LICENSES/LicenseRef-*.txt` from the same two |
 | `scripts/fetch-redirect-targets.ts` | Top up the wiki mirror with redirect targets |
+| `scripts/gen-map-images.mjs` | Composite `public/faerun-map*` from the tile pyramid |
 
-Node does not resolve the `@/` path alias, so anything a script imports must be
-dependency-free. That is why `lib/attribution.ts`, `lib/licence-scope.ts`, and
-`lib/wiki/mirror.ts` import nothing — keep it that way or the scripts stop
-running.
+The first three run on `node --experimental-strip-types` because they import
+from `lib/`. Node does not resolve the `@/` path alias, so anything they reach
+must be dependency-free — that is why `lib/attribution.ts`,
+`lib/licence-scope.ts`, and `lib/wiki/mirror.ts` import nothing. Keep it that
+way or the scripts stop running.
+
+`gen-map-images.mjs` imports nothing from `lib/` and restates the four constants
+it needs from `lib/map/config.ts`. That copy is the first thing to check if it
+ever produces a mis-cropped image.
 
 `lib/wiki/mirror.ts` holds what the mirror's reader and writer must agree on:
 the redirect selector, the image-drop lists, and the filename rules
@@ -210,8 +252,12 @@ module is imported by client components, and path globs have no business in the
 browser bundle.
 
 The scope is an exclusion list, so **MIT covers anything not named there**. That
-is the safe direction — the previous allowlist left the root configs, `docs/`,
-and `schemas/` with no stated licence at all — but it does mean a new directory
-of third-party material is given away unless it is added. `LICENSE` itself is
-kept as pristine MIT text with nothing appended, because GitHub's `licensee`
-stops recognising it otherwise and reports the whole repository as `NOASSERTION`.
+is the safe direction — the previous allowlist left the root configs, `docs/`
+and `schemas/` with no stated licence at all — but a new file of third-party
+material is given away unless it is added. Resizing or cropping the map creates
+no new rights in it, so every copy of the artwork needs naming;
+`public/faerun-map*` sat under MIT by omission until they were.
+
+`LICENSE` is kept as pristine MIT text with nothing appended, because GitHub's
+`licensee` stops recognising it otherwise and reports the whole repository as
+`NOASSERTION`.

@@ -29,6 +29,13 @@ export const WIKI_LICENSE = {
 
 export const REPO_URL = 'https://github.com/nooikko/post-map';
 
+/**
+ * The policy the map artwork is used under. Quoted in WOTC_NOTICE below and
+ * linked from the image licence metadata in lib/seo/jsonLd.ts, so that an
+ * image search result carrying this map says whose map it is.
+ */
+export const WOTC_POLICY_URL = 'https://company.wizards.com/en/legal/fancontentpolicy';
+
 // Where a rights holder goes to ask for a credit change or a removal. This
 // lives here rather than only in .github/ so that it lands in NOTICE — the one
 // file that travels with a fork or a redistribution, where the issue templates

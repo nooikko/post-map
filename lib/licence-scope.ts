@@ -40,10 +40,21 @@ export interface LicenceException {
 
 export const LICENCE_EXCEPTIONS: readonly LicenceException[] = [
     {
-        paths: ['public/tiles/**', 'docs/screenshot.webp'],
+        // Every one of these is the same picture at a different size. The two
+        // public/faerun-map* files are composited straight out of the pyramid
+        // by scripts/gen-map-images.mjs, so they carry exactly what the tiles
+        // carry — and being the flattest, most hotlinkable copies of the
+        // artwork in the tree, they are the ones an exclusion list must not
+        // miss.
+        paths: [
+            'public/tiles/**',
+            'public/faerun-map.webp',
+            'public/faerun-map-card.jpg',
+            'docs/screenshot.webp',
+        ],
         spdxId: 'LicenseRef-WotC-Fan-Content',
         copyright: 'Copyright (c) Wizards of the Coast LLC',
-        label: 'Map artwork, and the tiles and screenshot cut from it',
+        label: 'Map artwork, and the tiles, flat images and screenshot cut from it',
     },
     {
         paths: ['public/data/Faerun/wiki/**'],

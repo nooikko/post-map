@@ -16,6 +16,7 @@ import type { MapCore } from '@/lib/map/create';
 import type { Marker } from '@/lib/markers/load';
 
 import { MapContext } from './MapContext';
+import { MapPoster } from './MapPoster';
 import styles from './MapShell.module.css';
 import { MeasureReadout } from './MeasureReadout';
 import { MeasureToggle } from './MeasureToggle';
@@ -30,8 +31,7 @@ interface MapShellProps {
  * Owns the OpenLayers lifecycle and the app chrome around it.
  *
  * OpenLayers is imported inside the effect rather than at module scope so it
- * never loads during server rendering — the Vite app built its projection and
- * tile source at import time, which does not survive SSR.
+ * never loads during server rendering, which it does not survive.
  */
 export function MapShell({ markers }: MapShellProps) {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -143,6 +143,14 @@ export function MapShell({ markers }: MapShellProps) {
                         <GithubCorner className={styles.corner} reachable={panelOpen} />
                     </>
                 )}
+                {/*
+                  * Before the map container, not inside it: OpenLayers appends
+                  * its viewport to whatever element it is handed, and a
+                  * sibling image already in there would be laid out above it
+                  * rather than behind. The two are stacked by the module's
+                  * shared positioning instead.
+                  */}
+                <MapPoster />
                 <div ref={containerRef} className={styles.map} />
                 <MeasureToggle onToggle={measure.toggle} />
                 <MeasureReadout onClear={measure.clear} />

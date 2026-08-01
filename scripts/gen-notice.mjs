@@ -19,6 +19,7 @@ const {
     WIKI_LICENSE,
     WIKI_NAME,
     WOTC_NOTICE,
+    WOTC_POLICY_URL,
 } = await import('../lib/attribution.ts');
 
 const { LICENCE_EXCEPTIONS, PROJECT_LICENCE } = await import('../lib/licence-scope.ts');
@@ -76,19 +77,28 @@ ${NON_AFFILIATION_NOTICE}
 
 Use of the underlying Faerûn map artwork is governed by the Fan Content Policy:
 
-    https://company.wizards.com/en/legal/fancontentpolicy
+    ${WOTC_POLICY_URL}
 
 That policy requires this project to remain free to access. It is permission
 rather than a licence, and may be withdrawn at any time.
 
 
-Tile pyramid
+Tile pyramid, and the images cut from it
 --------------------------------------------------------------------------
 The tiles served here were cut by this project from the same Wizards of the
 Coast map described above. The artwork in them is theirs, and the Fan Content
 Policy above is what governs their use. Cutting a pyramid creates no new rights
-in the picture, and neither does screenshotting it: docs/screenshot.webp is
-covered for exactly the same reason.
+in the picture, and neither does resizing, cropping or screenshotting it. So the
+same terms reach every other copy of the artwork in this repository:
+
+    public/faerun-map.webp       the flat map shown behind the map canvas
+    public/faerun-map-card.jpg   the social preview card
+    docs/screenshot.webp         the README screenshot
+
+The first two are composited from the pyramid itself by
+scripts/gen-map-images.mjs. They are the copies most likely to be hotlinked or
+lifted, being ordinary image files at ordinary sizes, which is why they are
+named here rather than left to be inferred from where they came from.
 
 How the pyramid was produced is recorded in docs/tile-pipeline.md.
 

@@ -52,9 +52,14 @@ pnpm dev
 
 ```bash
 pnpm typecheck      # must pass
-pnpm build          # must pass; prerenders all 600 routes
+pnpm build          # must pass; prerenders all 601 routes
 pnpm licence:check  # must pass if you touched lib/attribution.ts or lib/licence-scope.ts
 ```
+
+If you added any file carrying someone else's copyright — artwork especially —
+it needs a path in `lib/licence-scope.ts` and a `pnpm licence` run. The scope is
+an exclusion list, so anything unnamed ships under MIT, and a copy of the map
+this project has no right to relicense is the easiest way to get that wrong.
 
 There is no test suite. Verification is the build plus checking the actual
 pages, so say in the PR what you loaded and what you saw.

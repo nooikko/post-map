@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 import { PROJECT_NAME, REPO_URL, WIKI_NAME } from '@/lib/attribution';
+import { openGraphFor } from '@/lib/seo/site';
 
 import styles from './page.module.css';
 
@@ -22,9 +23,17 @@ import styles from './page.module.css';
 /** Bumped by hand when the wording changes; git history is the real log. */
 const LAST_UPDATED = '1 August 2026';
 
+// `title` is the distinctive half only — app/layout.tsx appends "· Post Map"
+// through its title template, and spelling the brand out here as well would
+// render it twice.
+const DESCRIPTION =
+    `What ${PROJECT_NAME} measures, what it does not, and how long any of it is kept.`;
+
 export const metadata: Metadata = {
-    title: `Privacy · ${PROJECT_NAME}`,
-    description: `What ${PROJECT_NAME} measures, what it does not, and how long any of it is kept.`,
+    title: 'Privacy',
+    description: DESCRIPTION,
+    alternates: { canonical: '/privacy' },
+    openGraph: openGraphFor('/privacy', `Privacy · ${PROJECT_NAME}`, DESCRIPTION),
 };
 
 export default function PrivacyPage() {

@@ -11,9 +11,9 @@ path = "**"
 SPDX-FileCopyrightText = "Copyright (c) 2026 Quinn Penney"
 SPDX-License-Identifier = "MIT"
 
-# Map artwork, and the tiles and screenshot cut from it
+# Map artwork, and the tiles, flat images and screenshot cut from it
 [[annotations]]
-path = ["public/tiles/**", "docs/screenshot.webp"]
+path = ["public/tiles/**", "public/faerun-map.webp", "public/faerun-map-card.jpg", "docs/screenshot.webp"]
 SPDX-FileCopyrightText = "Copyright (c) Wizards of the Coast LLC"
 SPDX-License-Identifier = "LicenseRef-WotC-Fan-Content"
 

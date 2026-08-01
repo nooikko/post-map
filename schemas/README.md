@@ -43,5 +43,5 @@ redirect stub is.
 The marker GeoJSON in `public/data/Faerun/*.json` has no schema, no stable IDs,
 and encodes its category in the *filename*. `lib/markers/load.ts` reads it and
 `lib/slug.ts` derives stable URLs from place names, disambiguating the two
-name collisions with a numeric suffix. See the data section of the root
-[README](../README.md).
+name collisions with a numeric suffix. Its origin, and why this project asserts
+no claim over it, are in [NOTICE](../NOTICE).

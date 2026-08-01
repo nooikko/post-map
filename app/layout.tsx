@@ -5,11 +5,19 @@ import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 
 import { PROJECT_NAME } from '@/lib/attribution';
+import {
+    HOME_TITLE,
+    SITE_DESCRIPTION,
+    SITE_KEYWORDS,
+    SITE_LOCALE,
+    SITE_NAME,
+    SITE_URL,
+    SOCIAL_IMAGE,
+} from '@/lib/seo/site';
 
 import './globals.css';
 
-// Cormorant for display headings, Spectral for article prose — matching the
-// weights the Vite app loaded via @fontsource.
+// Cormorant for display headings, Spectral for article prose.
 const cormorant = Cormorant_Garamond({
     subsets: ['latin', 'latin-ext'],
     weight: ['600', '700'],
@@ -25,9 +33,55 @@ const spectral = Spectral({
     display: 'swap',
 });
 
+/**
+ * Site-wide metadata defaults; every page overrides the few it needs.
+ *
+ * `alternates.canonical` and `openGraph.url` are deliberately absent. Next
+ * resolves a relative canonical per-page, so setting one here would declare
+ * every other route a duplicate of the map. Both are per-page.
+ *
+ * `metadataBase` is what makes the root-relative URLs elsewhere absolute.
+ */
 export const metadata: Metadata = {
-    title: `Faerûn · ${PROJECT_NAME}`,
-    description: `${PROJECT_NAME} — an interactive map of Faerûn with place articles from the Forgotten Realms Wiki.`,
+    metadataBase: new URL(SITE_URL),
+    title: {
+        default: HOME_TITLE,
+        // Pages supply the distinctive half only; the brand is appended here.
+        template: `%s · ${PROJECT_NAME}`,
+    },
+    description: SITE_DESCRIPTION,
+    applicationName: PROJECT_NAME,
+    keywords: [...SITE_KEYWORDS],
+    category: 'reference',
+    // Not a phone number: "3.5" and four-digit distances are exactly what
+    // Safari turns into tel: links if left to guess.
+    formatDetection: { telephone: false, address: false, date: false },
+    openGraph: {
+        type: 'website',
+        siteName: SITE_NAME,
+        locale: SITE_LOCALE,
+        title: HOME_TITLE,
+        description: SITE_DESCRIPTION,
+        images: [SOCIAL_IMAGE],
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: HOME_TITLE,
+        description: SITE_DESCRIPTION,
+        images: [SOCIAL_IMAGE.url],
+    },
+    robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+            index: true,
+            follow: true,
+            // The default caps previews at 'standard'; a map result wants the
+            // thumbnail.
+            'max-image-preview': 'large',
+            'max-snippet': -1,
+        },
+    },
 };
 
 /**

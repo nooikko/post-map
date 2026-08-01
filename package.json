@@ -15,7 +15,8 @@
     "notice:check": "node --experimental-strip-types scripts/gen-notice.mjs --check",
     "reuse": "node --experimental-strip-types scripts/gen-reuse.mjs",
     "reuse:check": "node --experimental-strip-types scripts/gen-reuse.mjs --check",
-    "fetch:redirects": "node --experimental-strip-types scripts/fetch-redirect-targets.ts"
+    "fetch:redirects": "node --experimental-strip-types scripts/fetch-redirect-targets.ts",
+    "images": "node scripts/gen-map-images.mjs"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
@@ -32,6 +33,7 @@
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "postcss": "^8.5.25",
+    "sharp": "^0.35.3",
     "tailwindcss": "^4.3.3",
     "typescript": "^6.0.3"
   },

@@ -73,3 +73,27 @@ pyramid resolved to **xyz**, which is what `lib/map/config.ts` reads.
 The driver: stage the source map, `python3 -m venv` + `pip install pillow
 numpy`, then the two scripts in sequence. No GDAL, ImageMagick, or `cwebp` — all
 imaging ran in-process through Pillow.
+
+## What now depends on the pyramid
+
+`scripts/gen-map-images.mjs` composites two flat images back out of it —
+`public/faerun-map.webp`, shown behind the map canvas, and
+`public/faerun-map-card.jpg`, the social preview card. It stitches every tile at
+z3, crops the pyramid's right and bottom margin away, and re-encodes each output
+from that one buffer.
+
+```bash
+pnpm images
+```
+
+Both outputs are committed, like the tiles. The pyramid changes only when it is
+regenerated, so running this at build time would spend seconds of every build
+recomputing a byte-identical file — but it does mean **re-cutting the pyramid
+leaves them stale until this is run**. They are the same artwork under the same
+Fan Content Policy terms as the tiles, and `lib/licence-scope.ts` names them for
+that reason.
+
+The script restates `lib/map/config.ts`'s image dimensions, native zoom and tile
+size rather than importing them, since it is plain `.mjs` and that module is
+TypeScript behind a path alias. Changing either without the other is what a
+mis-cropped poster looks like.
