@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 import {
     NON_AFFILIATION_NOTICE,
     WIKI_HOST,
@@ -40,7 +42,18 @@ export function Credits() {
                 {WOTC_NOTICE}
             </p>
 
-            <p className="text-[11px] leading-relaxed text-muted">{NON_AFFILIATION_NOTICE}</p>
+            <p className="mb-2 text-[11px] leading-relaxed text-muted">
+                {NON_AFFILIATION_NOTICE}
+            </p>
+
+            {/* An internal route, so next/link rather than the Ext helper
+                below — nothing to open in a new tab and no rel to set. */}
+            <p className="text-[11px] leading-relaxed text-muted">
+                <Link href="/privacy" className="text-accent no-underline hover:underline">
+                    Privacy
+                </Link>{' '}
+                — what this site measures, and what it does not.
+            </p>
         </div>
     );
 }

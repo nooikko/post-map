@@ -22,8 +22,8 @@ Not affiliated with, endorsed, or approved by Wizards of the Coast.
 - **Distance measurement** in miles or kilometres, scaled from the source map.
 - **Search** across every marked place.
 - **Shareable links** — every place has its own URL.
-- **Works offline-ish** — no database, no accounts, no tracking, no runtime API
-  calls.
+- **Works offline-ish** — no database, no accounts, no cookies, and no runtime
+  API calls beyond anonymous visitor counts. See [Privacy](PRIVACY.md).
 
 ## Getting started
 
@@ -77,6 +77,14 @@ of how to behave.
 
 To report a security issue, see [SECURITY.md](SECURITY.md) — please use private
 reporting rather than a public issue.
+
+## Privacy
+
+The site counts visitors and page-load timings with Vercel Web Analytics and
+Speed Insights, on their free tier. No cookies, no accounts, no third-party
+trackers, and nothing typed into the search box leaves the browser. The full
+policy is at [post-map.vercel.app/privacy](https://post-map.vercel.app/privacy);
+see [PRIVACY.md](PRIVACY.md).
 
 ## Licensing
 

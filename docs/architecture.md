@@ -20,15 +20,21 @@ implementation", not as a module you can go and open.
 ## Stack
 
 Next.js 16 (App Router) · TypeScript · Tailwind 4 · OpenLayers 10, deployed on
-Vercel. There is no database and no server code. Every page is prerendered at
-build time — 599 routes — and served from the CDN; the GeoJSON and article JSON
-under `public/data/` are build inputs read from disk, not runtime API calls.
+Vercel. There is no database and no server code of this project's own. Every
+page is prerendered at build time — 600 routes — and served from the CDN; the
+GeoJSON and article JSON under `public/data/` are build inputs read from disk,
+not runtime API calls.
+
+The one request the deployed site makes at runtime is the analytics beacon,
+which goes to endpoints Vercel's platform provides rather than to anything in
+this repository — see [Analytics](#analytics) below.
 
 ```
 app/
   page.tsx                    map
   place/[slug]/               standalone place page
   @modal/(.)place/[slug]/     the same place, intercepted over the map
+  privacy/                    privacy policy (canonical; PRIVACY.md points here)
   robots.ts
 components/
   map/                        MapShell, measure tool, marker interactions
@@ -142,6 +148,30 @@ text; Turbopack's HMR evaluates module code and talks over a WebSocket, so
 `script-src-elem` needs `'unsafe-eval'` and `connect-src` needs `ws:`.
 Everything else is identical across both, so development still exercises the
 parts of the policy that can catch a real mistake.
+
+## Analytics
+
+`app/layout.tsx` mounts Vercel's `<Analytics />` and `<SpeedInsights />`, and
+does so **only when `NODE_ENV === 'production'`**. That gate is a CSP decision,
+not a preference.
+
+In production both components resolve their `<script src>` to a same-origin
+path — `/_vercel/insights/script.js` and `/_vercel/speed-insights/script.js`,
+or a randomised `/<unique-path>/script.js` when Vercel's build injects its
+observability config. Same-origin either way, so `script-src-elem 'self'` and
+`connect-src 'self'` already cover them and the policy above needed no
+exception. That is the whole reason the gate exists rather than a CSP entry:
+in development both packages point instead at `https://va.vercel-scripts.com`,
+which the policy blocks. Nothing is lost by not mounting them there — Vercel's
+development script logs to the console rather than sending anything.
+
+Two props would break this. `dsn` on `<SpeedInsights />` sends its script back
+out to `va.vercel-scripts.com` *even in production*, and `scriptSrc` on either
+overrides the path outright. Leave both components bare.
+
+What they collect is documented for visitors at `/privacy`
+(`app/privacy/page.tsx`), which is the canonical copy — `PRIVACY.md` only
+points at it. Changing what is mounted here means changing that page.
 
 ## Scripts
 

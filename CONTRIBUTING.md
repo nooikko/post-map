@@ -52,7 +52,7 @@ pnpm dev
 
 ```bash
 pnpm typecheck      # must pass
-pnpm build          # must pass; prerenders all 599 routes
+pnpm build          # must pass; prerenders all 600 routes
 pnpm notice:check   # must pass if you touched lib/attribution.ts
 ```
 

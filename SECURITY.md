@@ -18,8 +18,10 @@ This is a hobby project with no bounty and no formal response-time commitment.
 ## Scope
 
 This is a static site: no database, no accounts, no user input persisted
-anywhere, no server code. That rules out most of the usual categories. What is
-genuinely in scope:
+anywhere, and no application server code — the only runtime endpoints are the
+ones Vercel's platform provides under `/_vercel` for Web Analytics and Speed
+Insights, which this project does not implement. That rules out most of the
+usual categories. What is genuinely in scope:
 
 - **Cross-site scripting via article content.** Wiki HTML is the only untrusted
   input, and it is the one thing rendered as raw HTML. It passes through an

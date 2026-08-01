@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { Cormorant_Garamond, Spectral } from 'next/font/google';
+import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 import { PROJECT_NAME } from '@/lib/attribution';
 
@@ -39,6 +41,31 @@ export default function RootLayout({ children, modal }: RootLayoutProps) {
             <body className="h-full antialiased">
                 {children}
                 {modal}
+                {/*
+                 * Production only, and that is a CSP decision rather than a
+                 * preference. In development both packages point their
+                 * <script src> at https://va.vercel-scripts.com, which
+                 * `script-src-elem 'self'` blocks — so leaving them mounted
+                 * would mean either a console full of CSP violations or
+                 * loosening the dev policy to admit an external origin.
+                 * Nothing is lost by gating: Vercel's development script logs
+                 * to the console instead of sending anything. In production
+                 * both resolve to same-origin paths under /_vercel, so the
+                 * policy in next.config.ts needs no exception at all.
+                 *
+                 * Leave both components bare. `dsn` on <SpeedInsights /> is
+                 * the one prop that would send the script back out to
+                 * va.vercel-scripts.com even in production.
+                 *
+                 * What they collect, and for how long, is documented at
+                 * /privacy — app/privacy/page.tsx.
+                 */}
+                {process.env.NODE_ENV === 'production' && (
+                    <>
+                        <Analytics />
+                        <SpeedInsights />
+                    </>
+                )}
             </body>
         </html>
     );

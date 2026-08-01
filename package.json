@@ -13,6 +13,8 @@
     "fetch:redirects": "node --experimental-strip-types scripts/fetch-redirect-targets.ts"
   },
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
     "linkedom": "^0.18.13",
     "next": "^16.2.12",
     "ol": "^10",
