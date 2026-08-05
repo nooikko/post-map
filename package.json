@@ -16,7 +16,8 @@
     "reuse": "node --experimental-strip-types scripts/gen-reuse.mjs",
     "reuse:check": "node --experimental-strip-types scripts/gen-reuse.mjs --check",
     "fetch:redirects": "node --experimental-strip-types scripts/fetch-redirect-targets.ts",
-    "images": "node scripts/gen-map-images.mjs"
+    "images": "node scripts/gen-map-images.mjs",
+    "icons": "node scripts/gen-icons.mjs"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
