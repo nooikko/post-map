@@ -91,6 +91,16 @@ export const SOCIAL_IMAGE = {
     alt: 'The interactive map of Faerûn — pan, zoom and measure the Forgotten Realms',
 } as const;
 
+/**
+ * The X/Twitter account a card is attributed to, as twitter:site and
+ * twitter:creator — the site's account and the author's are the same one here.
+ *
+ * X drops the attribution line entirely if the handle does not resolve, so a
+ * stale one is no worse than none. It is still the first thing to change on a
+ * fork: a card crediting someone else's account is the failure mode.
+ */
+export const TWITTER_HANDLE = '@nooikko';
+
 /** en-GB is what the prose is written in — dates, "kilometres", "licence". */
 export const SITE_LOCALE = 'en_GB';
 

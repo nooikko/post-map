@@ -13,6 +13,7 @@ import {
     SITE_NAME,
     SITE_URL,
     SOCIAL_IMAGE,
+    TWITTER_HANDLE,
 } from '@/lib/seo/site';
 
 import './globals.css';
@@ -64,11 +65,18 @@ export const metadata: Metadata = {
         description: SITE_DESCRIPTION,
         images: [SOCIAL_IMAGE],
     },
+    // Unlike `openGraph` above, this block carries no title or description, and
+    // that is the point: Next merges `twitter` field by field rather than
+    // wholesale, so a title declared here would win over every page's own and
+    // pin all 297 place cards to the map's title. Left absent, twitter:title
+    // and twitter:description fall back to each page's resolved `title` and
+    // `description` — which is what og: already does through openGraphFor().
     twitter: {
         card: 'summary_large_image',
-        title: HOME_TITLE,
-        description: SITE_DESCRIPTION,
-        images: [SOCIAL_IMAGE.url],
+        site: TWITTER_HANDLE,
+        creator: TWITTER_HANDLE,
+        // The object, not `.url`: that is what also emits twitter:image:alt.
+        images: [SOCIAL_IMAGE],
     },
     robots: {
         index: true,
