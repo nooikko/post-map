@@ -12,7 +12,7 @@ Closes #
 
 ## How it was verified
 
-<!-- There is no test suite. Say what you loaded and what you saw. -->
+<!-- Describe any manual checks: what you loaded and what you saw. -->
 
 - [ ] `pnpm typecheck` passes
 - [ ] `pnpm build` passes
@@ -26,7 +26,7 @@ Closes #
       a file in `public/data/Faerun/wiki/`, rebuilt, and confirmed neither
       survived into `.next/server/app/place/<slug>.html`
 - [ ] Reverted the poisoned file
-- [ ] Redirect stubs and the 18 missing-article places still render
+- [ ] Redirect stubs and the remaining missing-article places still render
 
 ## If this touches attribution or licensing
 

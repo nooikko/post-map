@@ -1,38 +1,19 @@
-// Fetch the canonical articles that our redirect-stub markers point at.
-//
-// Several markers (Velprintalar, Ithmong) resolve to wiki redirect stubs whose
-// real content lives under a renamed or respelled title (Veltalar, Darromar).
-// Only a few of those targets were in the original mirror, so the panel could
-// only show a "recorded in the lore as X" note. This scans the mirror for
-// redirect stubs, finds the targets we are missing, fetches them through the
-// same fetch -> strip-images -> normalize pipeline, and writes them under the
-// TARGET name so the runtime's redirect-follow resolves to a full article.
-//
-//   pnpm fetch:redirects            fetch only what is missing
-//   pnpm fetch:redirects --force    re-fetch targets already on disk
-//
-// Ported from scripts/fetch_redirect_targets.py (bs4 + urllib). linkedom does
-// the DOM work; the shared selectors and the file envelope live in
-// lib/wiki/mirror.ts so this script and the runtime cannot disagree about what
-// a redirect stub is.
-//
-// Imports are relative and reach only dependency-free modules on purpose:
-// `node --experimental-strip-types` does not resolve the `@/` alias.
-
+import { realpathSync } from 'node:fs';
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
 
-import { parseHTML } from 'linkedom';
-
 import { WIKI_HOST } from '../lib/attribution.ts';
+import { LAYERS } from '../lib/map/config.ts';
+import { ARTICLE_NAMES } from '../lib/wiki/article-names.ts';
+import { parseFragment } from '../lib/wiki/clean.ts';
 import {
     IMAGE_DROP_CLASSES,
     IMAGE_DROP_TAGS,
-    REDIRECT_SELECTOR,
     WIKIA_CDN_HOST,
     isDisambiguation,
     isSafeName,
+    redirectTarget,
 } from '../lib/wiki/mirror.ts';
 
 const WIKI_DIR = path.join(import.meta.dirname, '..', 'public', 'data', 'Faerun', 'wiki');
@@ -47,16 +28,9 @@ interface MirrorFile {
     pageId: number | null;
     html: string | null;
     error: { code: string; info: string } | null;
-    source: { wiki: string; url: string; fetchedAt: string };
+    source: { wiki: string; url: string; fetchedAt: string; revisionId?: number };
 }
 
-/**
- * Percent-encode the way Python's urllib.parse.quote does. encodeURIComponent
- * leaves `!'()*` alone and quote does not, which would silently rewrite the
- * stored `source.url` of every page with parentheses in its title (there is at
- * least one: "Dragon Falls (village)"). Matching the old encoder keeps
- * re-fetches diff-clean against what the Python script committed.
- */
 function quote(value: string): string {
     return encodeURIComponent(value).replace(
         /[!'()*]/g,
@@ -65,7 +39,7 @@ function quote(value: string): string {
 }
 
 function sourceUrl(name: string): string {
-    return `${API}?action=parse&format=json&prop=text&page=${quote(name)}`;
+    return `${API}?action=parse&format=json&prop=text%7Crevid&page=${quote(name)}`;
 }
 
 /**
@@ -73,35 +47,44 @@ function sourceUrl(name: string): string {
  * see NOTICE — so this runs before anything is written to disk, not at render
  * time.
  */
-function stripImages(html: string): string {
-    const { document } = parseHTML(`<!doctype html><body><div id="root">${html}</div></body>`);
-    const root = document.getElementById('root');
-    if (!root) return html;
-
+export function stripImages(html: string): string {
+    const { root } = parseFragment(html);
     const selectors = [
         ...IMAGE_DROP_TAGS,
         ...IMAGE_DROP_CLASSES.map((c) => `.${c}`),
         '[data-source="image"]',
         `a[href*="${WIKIA_CDN_HOST}"]`,
     ];
-    root.querySelectorAll(selectors.join(',')).forEach((el) => el.remove());
+    root.querySelectorAll(selectors.join(',')).forEach((el) => {
+        el.remove();
+    });
 
     return root.innerHTML;
 }
 
-function redirectTargetOf(html: string): string | null {
-    const { document } = parseHTML(`<!doctype html><body><div id="root">${html}</div></body>`);
-    const link = document.getElementById('root')?.querySelector(REDIRECT_SELECTOR);
-    if (!link) return null;
-    const raw = link.getAttribute('title') || (link.textContent ?? '').replace(/\s+/g, ' ');
-    return raw.trim() || null;
-}
-
-/** Scan the mirror for redirect stubs and report the targets we do not hold. */
-async function findTargets(force: boolean): Promise<string[]> {
+async function findTargets(force: boolean, all: boolean): Promise<string[]> {
     const files = (await readdir(WIKI_DIR)).filter((f) => f.endsWith('.json'));
     const have = new Set(files.map((f) => path.basename(f, '.json')));
     const targets = new Set<string>();
+    if (all) {
+        for (const name of have) targets.add(name);
+        for (const layer of LAYERS) {
+            const raw = await readFile(path.join(WIKI_DIR, '..', `${layer.key}.json`), 'utf8');
+            const collection: { features: Array<{ properties: { name: string } }> } = JSON.parse(
+                raw.replace(/^\uFEFF/, ''),
+            );
+            for (const { properties } of collection.features) {
+                if (isSafeName(properties.name)) {
+                    targets.add(properties.name);
+                } else {
+                    console.warn(
+                        `  warning: skipping unsafe marker name ${JSON.stringify(properties.name)} in ${layer.key}.json`,
+                    );
+                }
+            }
+        }
+        return [...targets].sort();
+    }
 
     for (const file of files) {
         let article: Partial<MirrorFile>;
@@ -113,10 +96,12 @@ async function findTargets(force: boolean): Promise<string[]> {
         }
         if (article.status !== 'ok' || !article.html) continue;
 
-        const target = redirectTargetOf(article.html);
+        const target = redirectTarget(article.html);
         if (!target || isDisambiguation(target)) continue;
         if (!isSafeName(target)) {
-            console.warn(`  warning: skipping unsafe redirect target ${JSON.stringify(target)} in ${file}`);
+            console.warn(
+                `  warning: skipping unsafe redirect target ${JSON.stringify(target)} in ${file}`,
+            );
             continue;
         }
         if (force || !have.has(target)) targets.add(target);
@@ -142,7 +127,7 @@ async function fetchArticle(name: string): Promise<unknown> {
  */
 interface ParseResponse {
     error?: { code?: string; info?: string };
-    parse?: { title?: string; pageid?: number; text?: { '*'?: string } };
+    parse?: { title?: string; pageid?: number; revid?: number; text?: { '*'?: string } };
 }
 
 function isParseResponse(value: unknown): value is ParseResponse {
@@ -150,11 +135,11 @@ function isParseResponse(value: unknown): value is ParseResponse {
 }
 
 /** Shape an API response into the on-disk envelope, keys in schema order. */
-function normalize(raw: unknown, name: string): MirrorFile {
+export function normalize(raw: unknown, name: string, requestedName = name): MirrorFile {
     const body: ParseResponse = isParseResponse(raw) ? raw : {};
     const source = {
         wiki: WIKI_HOST,
-        url: sourceUrl(name),
+        url: sourceUrl(requestedName),
         fetchedAt: new Date().toISOString().replace(/\.\d{3}Z$/, 'Z'),
     };
 
@@ -191,8 +176,25 @@ function normalize(raw: unknown, name: string): MirrorFile {
         pageId: body.parse?.pageid ?? null,
         html: stripImages(html),
         error: null,
-        source,
+        source: { ...source, ...(body.parse?.revid ? { revisionId: body.parse.revid } : {}) },
     };
+}
+
+/**
+ * A failed refetch must not cost us an article we already hold: an `error`
+ * result (rate limit, maintenance, empty body) never replaces a good file.
+ * `missing` does — the wiki saying the page is gone is an answer, not a fault.
+ */
+export function keepsPrevious(previous: Partial<MirrorFile> | null, next: MirrorFile): boolean {
+    return next.status === 'error' && previous?.status === 'ok' && Boolean(previous.html);
+}
+
+async function readPrevious(name: string): Promise<Partial<MirrorFile> | null> {
+    try {
+        return JSON.parse(await readFile(path.join(WIKI_DIR, `${name}.json`), 'utf8'));
+    } catch {
+        return null;
+    }
 }
 
 async function write(name: string, article: MirrorFile): Promise<void> {
@@ -203,34 +205,41 @@ async function write(name: string, article: MirrorFile): Promise<void> {
 
 async function main(): Promise<number> {
     const force = process.argv.includes('--force');
-
-    const targets = await findTargets(force);
-    console.log(`${targets.length} redirect targets to fetch${force ? ' (--force)' : ''}: ${JSON.stringify(targets)}`);
+    const all = process.argv.includes('--all');
+    const targets = new Set(await findTargets(force, all));
+    console.log(`${targets.size} ${all ? 'articles' : 'redirect targets'} to fetch`);
 
     const stats = { ok: 0, missing: 0, error: 0 };
     let failed = 0;
 
     for (const name of targets) {
+        const requestedName = Object.hasOwn(ARTICLE_NAMES, name) ? ARTICLE_NAMES[name] : name;
         let raw: unknown;
         try {
-            raw = await fetchArticle(name);
+            raw = await fetchArticle(requestedName);
         } catch (err) {
             console.error(`  ${name}: fetch failed: ${(err as Error).message}`);
             failed += 1;
             continue;
         }
-        const article = normalize(raw, name);
-        await write(name, article);
+        const article = normalize(raw, name, requestedName);
         stats[article.status] += 1;
+        if (keepsPrevious(await readPrevious(name), article)) {
+            console.error(`  ${name}: ${article.error?.code}; kept the previous article`);
+            continue;
+        }
+        await write(name, article);
+        const target = article.html ? redirectTarget(article.html) : null;
+        if (all && target && !isDisambiguation(target) && isSafeName(target)) targets.add(target);
         console.log(`  ${name}: ${article.status} (${article.html?.length ?? 0} chars)`);
     }
 
     console.log(`done: ${JSON.stringify(stats)}${failed ? `, ${failed} failed` : ''}`);
 
-    // A network flake used to report itself on stderr and still exit 0, so
-    // anything scripting this could not tell a clean run from a half-finished
-    // one. `missing` is not a failure — the wiki genuinely has no such page.
     return failed || stats.error ? 1 : 0;
 }
 
-process.exitCode = await main();
+// Compare real paths: import.meta.filename is resolved through symlinks, argv[1] is as typed.
+if (process.argv[1] && realpathSync(process.argv[1]) === import.meta.filename) {
+    process.exitCode = await main();
+}

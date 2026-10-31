@@ -1,3 +1,4 @@
+// biome-ignore-all lint/suspicious/noArrayIndexKey: These stateless lists render immutable article snapshots whose repeated values have no source IDs.
 import type { InfoboxField, InfoboxGroup } from '@/lib/wiki/types';
 
 import styles from './InfoboxRail.module.css';
@@ -38,16 +39,22 @@ function FieldValue({ field }: { field: InfoboxField }) {
         case 'bars':
             return (
                 <>
-                    {field.rows.map((row) => (
-                        <div key={row.name} className={styles.bar}>
-                            <span className={styles.barName}>{row.name}</span>
-                            <span className={styles.barTrack}>
-                                <span
-                                    className={styles.barFill}
-                                    style={{ width: `${clampPct(row.pct)}%` }}
-                                />
-                            </span>
-                            <span className={styles.barPct}>{row.label}</span>
+                    {field.parts.map((part, index) => (
+                        <div key={index}>
+                            {part.kind === 'text' ? (
+                                <div className={styles.line}>{part.text}</div>
+                            ) : part.rows.map((row) => (
+                                <div key={row.name} className={styles.bar}>
+                                    <span className={styles.barName}>{row.name}</span>
+                                    <span className={styles.barTrack}>
+                                        <span
+                                            className={styles.barFill}
+                                            style={{ width: `${clampPct(row.pct)}%` }}
+                                        />
+                                    </span>
+                                    <span className={styles.barPct}>{row.label}</span>
+                                </div>
+                            ))}
                         </div>
                     ))}
                 </>

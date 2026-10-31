@@ -46,6 +46,7 @@ export function PlaceModal({ children }: PlaceModalProps) {
     }
 
     return (
+        // biome-ignore lint/a11y/useKeyWithClickEvents: Native dialog cancellation handles Escape; this click handler only dismisses the backdrop.
         <dialog ref={ref} className={styles.dialog} onClose={handleClose} onClick={handleClick}>
             {children}
         </dialog>

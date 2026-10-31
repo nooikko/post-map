@@ -116,7 +116,7 @@ export function BottomSheet({ open, onClose, label, children }: BottomSheetProps
         [onClose],
     );
 
-    const onPointerDown = useCallback((event: PointerEvent<HTMLDivElement>) => {
+    const onPointerDown = useCallback((event: PointerEvent<HTMLButtonElement>) => {
         const el = ref.current;
         if (!el) return;
         event.currentTarget.setPointerCapture(event.pointerId);
@@ -130,7 +130,7 @@ export function BottomSheet({ open, onClose, label, children }: BottomSheetProps
         el.classList.add(styles.dragging);
     }, []);
 
-    const onPointerMove = useCallback((event: PointerEvent<HTMLDivElement>) => {
+    const onPointerMove = useCallback((event: PointerEvent<HTMLButtonElement>) => {
         const state = drag.current;
         const el = ref.current;
         if (!state || !el || event.pointerId !== state.id) return;
@@ -143,7 +143,7 @@ export function BottomSheet({ open, onClose, label, children }: BottomSheetProps
     }, []);
 
     const endDrag = useCallback(
-        (event: PointerEvent<HTMLDivElement>, cancelled: boolean) => {
+        (event: PointerEvent<HTMLButtonElement>, cancelled: boolean) => {
             const state = drag.current;
             const el = ref.current;
             if (!state || !el || event.pointerId !== state.id) return;
@@ -166,6 +166,7 @@ export function BottomSheet({ open, onClose, label, children }: BottomSheetProps
     );
 
     return (
+        // biome-ignore lint/a11y/useKeyWithClickEvents: Native dialog cancellation handles Escape; this click handler only dismisses the backdrop.
         <dialog
             ref={ref}
             className={styles.sheet}
@@ -174,14 +175,13 @@ export function BottomSheet({ open, onClose, label, children }: BottomSheetProps
             onClick={handleClick}
             onClose={onClose}
         >
-            <div
+            <button
+                type="button"
                 className={styles.grab}
                 onPointerDown={onPointerDown}
                 onPointerMove={onPointerMove}
                 onPointerUp={(event) => endDrag(event, false)}
                 onPointerCancel={(event) => endDrag(event, true)}
-                role="button"
-                tabIndex={0}
                 aria-label="Close"
                 onKeyDown={(event) => {
                     if (event.key === 'Enter' || event.key === ' ') {
@@ -191,7 +191,7 @@ export function BottomSheet({ open, onClose, label, children }: BottomSheetProps
                 }}
             >
                 <span className={styles.handle} aria-hidden="true" />
-            </div>
+            </button>
             <div className={styles.body}>{children}</div>
         </dialog>
     );

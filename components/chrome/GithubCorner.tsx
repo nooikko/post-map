@@ -1,3 +1,4 @@
+// biome-ignore-all lint/a11y/useAnchorContent: The labeled link intentionally leaves the accessibility tree while its sidebar is closed.
 import { PROJECT_NAME, REPO_URL } from '@/lib/attribution';
 
 import styles from './GithubCorner.module.css';

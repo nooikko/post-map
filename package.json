@@ -9,42 +9,43 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
+    "lint": "biome lint --error-on-warnings .",
+    "test": "tsx --test tests/*.test.mjs",
     "licence": "pnpm run notice && pnpm run reuse",
     "licence:check": "pnpm run notice:check && pnpm run reuse:check",
-    "notice": "node --experimental-strip-types scripts/gen-notice.mjs",
-    "notice:check": "node --experimental-strip-types scripts/gen-notice.mjs --check",
-    "reuse": "node --experimental-strip-types scripts/gen-reuse.mjs",
-    "reuse:check": "node --experimental-strip-types scripts/gen-reuse.mjs --check",
-    "fetch:redirects": "node --experimental-strip-types scripts/fetch-redirect-targets.ts",
+    "notice": "tsx scripts/gen-notice.mjs",
+    "notice:check": "tsx scripts/gen-notice.mjs --check",
+    "reuse": "tsx scripts/gen-reuse.mjs",
+    "reuse:check": "tsx scripts/gen-reuse.mjs --check",
+    "fetch:redirects": "tsx scripts/fetch-redirect-targets.ts",
+    "wiki:sync": "tsx scripts/fetch-redirect-targets.ts --all",
     "images": "node scripts/gen-map-images.mjs",
     "icons": "node scripts/gen-icons.mjs"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
-    "linkedom": "^0.18.13",
-    "next": "^16.2.12",
-    "ol": "^10",
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "linkedom": "^0.18.14",
+    "next": "^16.4.3",
+    "ol": "^10.11.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.6.4",
     "@tailwindcss/postcss": "^4.3.3",
-    "@types/node": "^26.1.2",
-    "@types/react": "^19.2.18",
-    "@types/react-dom": "^19.2.4",
-    "postcss": "^8.5.25",
-    "sharp": "^0.35.3",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "postcss": "^8.5.32",
+    "sharp": "^0.35.5",
     "tailwindcss": "^4.3.3",
-    "typescript": "^6.0.3"
+    "tsx": "4.23.15",
+    "typescript": "^7.0.2"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
       "sharp"
-    ],
-    "overrides": {
-      "postcss@<8.5.18": "^8.5.23",
-      "sharp@<0.35.0": "^0.35.0"
-    }
+    ]
   }
 }

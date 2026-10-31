@@ -25,7 +25,7 @@ a 256px logical grid, `xyz` scheme.
 
 Per tile, in order:
 
-1. **Pixel-doubling detection.** A tile counts as pixel-doubled when ≥95% of its 2×2
+1. **Pixel-doubling detection in the unbuffered path.** A tile counts as pixel-doubled when ≥95% of its 2×2
    blocks have `std < 0.01`. Those were halved with an exact NEAREST decimation
    rather than resampled, recovering the true resolution instead of blurring an
    already-upscaled image.
@@ -39,6 +39,11 @@ at the map's outer edge), run through the filter chain, then cropped back. Filte
 a tile alone produces visible discontinuities at every tile border; this is why the
 pyramid has none.
 
+The shipped `--buffer 8` invocation uses `clean_tile_buffered`, which resamples
+the padded tile directly. Although that function accepts the `undouble` argument,
+it does not use it. The detection above describes the unbuffered code path,
+not a step the shipped buffered run actually performed.
+
 **Treatments.** Shipped setting was `sharpen-clean`.
 
 | Treatment | Filters |
@@ -47,9 +52,10 @@ pyramid has none.
 | `selective` | `UnsharpMask(radius=2, percent=120, threshold=0)` |
 | `clean` | `UnsharpMask(radius=2, percent=110, threshold=0)` |
 
-Plus, in the `clean` variants: `GaussianBlur(1.2)` to de-dither flat regions,
-`GaussianBlur(1.0)` for soft masks, and `MaxFilter(5) + GaussianBlur(1.5)` for the
-edge mask. Flats and sharpened detail were recombined with
+`sharpen-clean` uses `GaussianBlur(1.2)` to de-dither flat regions and
+`GaussianBlur(1.0)` for soft masks. `MaxFilter(5) + GaussianBlur(1.5)` belongs
+to the separate `selective` treatment and was not used by the shipped setting.
+Flats and sharpened detail were recombined with
 `Image.composite(flat, sharp3, soft(grad < flat_thresh))`, where `grad` came from
 `numpy.gradient` — the point being to smooth parchment texture without softening
 coastlines or lettering.

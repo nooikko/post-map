@@ -36,7 +36,9 @@ const DROP_SELECTORS = [
     '.dablink', // top-of-page disambiguation hatnotes
     '.hatnote',
     '.rellink',
-    '.mw-disambig',
+    // This class also marks ordinary inline article links. Removing those
+    // anchors deletes their words (and can empty an entire infobox field).
+    '.mw-disambig:not(a)',
     'table.stub', // "this article is a stub" notice boxes
     '.metadata', // wiki maintenance/metadata message boxes
     '.messagebox',
@@ -80,7 +82,7 @@ export function parseFragment(html: string): ParsedRoot {
  * them.
  */
 export function cleanArticle(root: Element, document: Document): void {
-    root.querySelectorAll(DROP_SELECTORS.join(',')).forEach((el) => el.remove());
+    root.querySelectorAll(DROP_SELECTORS.join(',')).forEach((el) => { el.remove(); });
 
     // The "This is a Good Article!" badge is a plain <p><b>…</b></p> with no
     // stable class — match it by text and drop the whole paragraph.

@@ -4,9 +4,6 @@
 //   pnpm notice          rewrite NOTICE
 //   pnpm notice:check    fail if NOTICE is stale (run in CI)
 //
-// Requires Node's --experimental-strip-types; lib/attribution.ts is dependency
-// free precisely so it can be loaded this way.
-
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';

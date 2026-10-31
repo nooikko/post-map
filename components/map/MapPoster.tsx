@@ -22,6 +22,7 @@ export function MapPoster() {
         // See the note on `.poster` in MapShell.module.css for why an <img>
         // cannot take those insets directly.
         <div className={styles.poster}>
+            {/* biome-ignore lint/performance/noImgElement: The public image URL contract is documented above. */}
             <img
                 src={POSTER_IMAGE.url}
                 width={POSTER_IMAGE.width}

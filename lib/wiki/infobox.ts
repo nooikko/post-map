@@ -11,7 +11,7 @@
 
 import { normalizedText } from '@/lib/wiki/clean';
 import { serializeProse } from '@/lib/wiki/sanitize';
-import type { InfoboxBar, InfoboxField, InfoboxGroup } from '@/lib/wiki/types';
+import type { InfoboxBar, InfoboxField, InfoboxGroup, InfoboxPart } from '@/lib/wiki/types';
 
 export interface SplitArticle {
     proseHtml: string;
@@ -102,19 +102,9 @@ function parseField(el: Element): InfoboxField | null {
     const value = el.querySelector('.pi-data-value');
     if (!value) return null;
 
-    // --- races: percentagetable -> labelled bars ---
-    const pct = value.querySelector('table.percentagetable');
-    if (pct) {
-        const rows: InfoboxBar[] = [];
-        pct.querySelectorAll('tr').forEach((tr) => {
-            const cells = tr.querySelectorAll('td');
-            if (cells.length < 2) return;
-            const name = normalizedText(cells[0]);
-            const raw = normalizedText(cells[1]);
-            const num = Number.parseFloat(raw.replace(/[^0-9.]/g, ''));
-            rows.push({ name, label: raw, pct: Number.isFinite(num) ? num : null });
-        });
-        if (rows.length > 0) return { kind: 'bars', label, source, rows };
+    if (value.querySelector('table.percentagetable')) {
+        const parts = distributionParts(value);
+        if (parts.some((part) => part.kind === 'bars')) return { kind: 'bars', label, source, parts };
     }
 
     // --- aliases / spelling -> chips (split on <br> OR commas; some pages
@@ -139,6 +129,44 @@ function parseField(el: Element): InfoboxField | null {
     return { kind: 'text', label, source, text };
 }
 
+function distributionParts(value: Element): InfoboxPart[] {
+    const parts: InfoboxPart[] = [];
+    let text = '';
+    const flush = () => {
+        const normalized = text.replace(/\s+/g, ' ').trim();
+        if (normalized) parts.push({ kind: 'text', text: normalized });
+        text = '';
+    };
+    const visit = (node: Node): void => {
+        if (node.nodeType === 3) { text += node.textContent ?? ''; return; }
+        if (node.nodeType !== 1) return;
+        const element = node as Element;
+        if (element.matches('br')) { text += ' '; return; }
+        if (element.matches('table.percentagetable')) {
+            const tableRows = Array.from(element.querySelectorAll('tr'));
+            const rows: InfoboxBar[] = tableRows.flatMap((tr) => {
+                const cells = directChildren(tr, 'td');
+                if (cells.length < 2) return [];
+                const name = normalizedText(cells[0]);
+                const label = normalizedText(cells[1]);
+                const number = Number.parseFloat(label.replace(/[^0-9.]/g, ''));
+                return [{ name, label, pct: Number.isFinite(number) ? number : null }];
+            });
+            if (rows.length) {
+                flush();
+                const caption = normalizedText(element.querySelector('caption'));
+                if (caption) parts.push({ kind: 'text', text: caption });
+                parts.push({ kind: 'bars', rows });
+                return;
+            }
+        }
+        element.childNodes.forEach(visit);
+    };
+    value.childNodes.forEach(visit);
+    flush();
+    return parts;
+}
+
 /** Split a value node on <br> into trimmed text fragments. */
 function splitByBr(node: Element): string[] {
     const parts: string[] = [''];
@@ -152,7 +180,7 @@ function splitByBr(node: Element): string[] {
 /** Remove prose leftovers that survive the main scrub: empty paragraphs, stray wrappers. */
 function tidyProse(root: Element): void {
     root.querySelectorAll('p.mw-empty-elt, .rightscroll, figure, .floatleft, .floatright')
-        .forEach((el) => el.remove());
+        .forEach((el) => { el.remove(); });
     root.querySelectorAll('p').forEach((p) => {
         if (!(p.textContent ?? '').trim() && !p.querySelector('img,table')) p.remove();
     });
