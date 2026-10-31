@@ -39,7 +39,7 @@ async function readArticleFile(pageName: string): Promise<WikiFile | null> {
 
 function metaFor(article: WikiFile, pageName: string): ArticleMeta {
     return {
-        name: article.name || pageName,
+        name: article.title || article.name || pageName,
         title: article.title || article.name || pageName,
         fetchedAt: article.source?.fetchedAt ?? '',
     };
@@ -62,14 +62,13 @@ function redirectTarget(html: string): string | null {
 /**
  * Load and clean one place article.
  *
- * Returns null when we hold no usable article — 18 of the 297 markers point at
- * pages that don't exist on the wiki. Those places still get a route; the page
+ * Returns null when we hold no usable article. Those places still get a route; the page
  * just says so. No CC BY-SA credit is rendered in that case because no wiki
  * text is being used.
  */
 export async function loadArticle(pageName: string, depth = 0): Promise<PlaceArticle | null> {
     const article = await readArticleFile(pageName);
-    if (!article || article.status !== 'ok' || !article.html) return null;
+    if (article?.status !== 'ok' || !article.html) return null;
 
     // Some markers point at wiki redirect stubs (a renamed/respelled place).
     // Follow the redirect when the canonical article is in our mirror.

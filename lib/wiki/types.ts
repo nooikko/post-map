@@ -6,7 +6,11 @@ export type InfoboxField =
     | { kind: 'text'; label: string; source: string; text: string }
     | { kind: 'lines'; label: string; source: string; lines: string[] }
     | { kind: 'chips'; label: string; source: string; chips: string[] }
-    | { kind: 'bars'; label: string; source: string; rows: InfoboxBar[] };
+    | { kind: 'bars'; label: string; source: string; parts: InfoboxPart[] };
+
+export type InfoboxPart =
+    | { kind: 'text'; text: string }
+    | { kind: 'bars'; rows: InfoboxBar[] };
 
 export interface InfoboxBar {
     name: string;

@@ -52,7 +52,7 @@ pnpm dev
 
 ```bash
 pnpm typecheck      # must pass
-pnpm build          # must pass; prerenders all 601 routes
+pnpm build          # must pass
 pnpm licence:check  # must pass if you touched lib/attribution.ts or lib/licence-scope.ts
 ```
 
@@ -61,8 +61,8 @@ it needs a path in `lib/licence-scope.ts` and a `pnpm licence` run. The scope is
 an exclusion list, so anything unnamed ships under MIT, and a copy of the map
 this project has no right to relicense is the easiest way to get that wrong.
 
-There is no test suite. Verification is the build plus checking the actual
-pages, so say in the PR what you loaded and what you saw.
+The [CI workflow](.github/workflows/ci.yml) defines the required automated checks.
+Also inspect affected pages and describe what you loaded and what you saw.
 
 If you changed the wiki pipeline (`lib/wiki/`), confirm you did not break the
 sanitizer: inject `<script>alert(1)</script>` and `<img src=x onerror=alert(1)>`

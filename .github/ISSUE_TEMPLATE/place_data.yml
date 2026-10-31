@@ -7,9 +7,8 @@ body:
       value: |
         Marker positions and categories live in `public/data/Faerun/*.json`; the
         article each marker points at is mirrored under
-        `public/data/Faerun/wiki/`. 18 of the 297 markers point at pages the wiki
-        does not have — those places still get a page that says so, which is
-        expected rather than a bug.
+        `public/data/Faerun/wiki/`. A place without a mirrored article still gets
+        a page explaining that the archive has no entry.
 
         Factual errors *inside* an article belong upstream at the
         [Forgotten Realms Wiki](https://forgottenrealms.fandom.com/); this mirror

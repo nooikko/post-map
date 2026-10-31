@@ -6,7 +6,7 @@ How Post Map is put together, for anyone reading or changing the code.
 
 Next.js 16 (App Router) · TypeScript · Tailwind 4 · OpenLayers 10, deployed on
 Vercel. There is no database and no server code of this project's own. Every
-page is prerendered at build time — 601 routes — and served from the CDN; the
+page is prerendered at build time and served from the CDN; the
 GeoJSON and article JSON under `public/data/` are build inputs read from disk,
 not runtime API calls.
 
@@ -217,14 +217,8 @@ is run by hand when the thing it derives from changes.
 |---|---|
 | `scripts/gen-notice.mjs` | Generate `NOTICE` from `lib/attribution.ts` + `lib/licence-scope.ts` |
 | `scripts/gen-reuse.mjs` | Generate `REUSE.toml` and `LICENSES/LicenseRef-*.txt` from the same two |
-| `scripts/fetch-redirect-targets.ts` | Top up the wiki mirror with redirect targets |
+| `scripts/fetch-redirect-targets.ts` | Refresh wiki articles or fetch missing redirect targets |
 | `scripts/gen-map-images.mjs` | Composite `public/faerun-map*` from the tile pyramid |
-
-The first three run on `node --experimental-strip-types` because they import
-from `lib/`. Node does not resolve the `@/` path alias, so anything they reach
-must be dependency-free — that is why `lib/attribution.ts`,
-`lib/licence-scope.ts`, and `lib/wiki/mirror.ts` import nothing. Keep it that
-way or the scripts stop running.
 
 `gen-map-images.mjs` imports nothing from `lib/` and restates the four constants
 it needs from `lib/map/config.ts`. That copy is the first thing to check if it

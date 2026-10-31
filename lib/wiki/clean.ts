@@ -36,7 +36,9 @@ const DROP_SELECTORS = [
     '.dablink', // top-of-page disambiguation hatnotes
     '.hatnote',
     '.rellink',
-    '.mw-disambig',
+    // This class also marks ordinary inline article links. Removing those
+    // anchors deletes their words (and can empty an entire infobox field).
+    '.mw-disambig:not(a)',
     'table.stub', // "this article is a stub" notice boxes
     '.metadata', // wiki maintenance/metadata message boxes
     '.messagebox',

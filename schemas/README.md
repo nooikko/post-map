@@ -10,33 +10,26 @@ One file per place name, keyed by the marker's `name`. Filenames are stored
 decoded (`Baldur's Gate.json`, not `Baldur%27s%20Gate.json`).
 
 The envelope is the same shape for `ok`, `missing`, and `error`, so consumers
-never branch on the response *form* — only on `status`. 310 files: 292 `ok`,
-18 `missing`.
+never branch on the response *form* — only on `status`.
 
-## How the mirror was built
+## Refreshing the mirror
 
-The original scrape ran `fetch → strip-images → normalize`, staging raw
-MediaWiki `action=parse` responses before converting them to this schema. Those
-scripts have been removed: the raw staging tree was deleted once normalisation
-completed, which left all three pointing at paths that no longer exist. The
-mirror in `public/data/Faerun/wiki/` is the surviving artefact, and it is a
-build input — nothing fetches the wiki at runtime.
+`pnpm wiki:sync` fetches the current wiki content for existing mirror entries
+and map markers, follows redirect targets, strips images, and writes the JSON
+directly to `public/data/Faerun/wiki/`. Wiki responses are the source of truth,
+including changed text and missing pages. Nothing fetches the wiki at runtime.
 
-`scripts/fetch-redirect-targets.ts` is the one live script. Some markers point
-at wiki redirect stubs whose real content lives under a renamed title
-(Velprintalar → Veltalar). It scans the mirror for those stubs, fetches any
-target that is missing, and writes it under the *target* name so the build's
-redirect-follow (`lib/wiki/load.ts`) resolves to a full article. It is
-idempotent.
+`lib/wiki/article-names.ts` maps historical map labels to wiki page titles.
+The marker names and filenames stay unchanged.
 
 ```bash
-pnpm fetch:redirects            # skips targets already present
-pnpm fetch:redirects --force    # re-fetch targets already on disk
+pnpm wiki:sync
+pnpm fetch:redirects            # fetch absent redirect targets
+pnpm fetch:redirects --force    # refresh targets already on disk
 ```
 
-Selectors and the file envelope are shared with the runtime through
-`lib/wiki/mirror.ts`, so the script and the reader cannot disagree about what a
-redirect stub is.
+The `html` field is image-stripped source. The build cleans it, extracts the
+infobox, and runs the allowlist sanitizer before rendering it.
 
 ## Not covered by a schema
 

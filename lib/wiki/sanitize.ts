@@ -7,7 +7,7 @@
 // an allowlist, not a denylist: anything not named here does not survive, so a
 // tag or attribute nobody anticipated fails closed.
 //
-// Runs at build time only (all 599 pages are prerendered), over the linkedom
+// Runs at build time only, over the linkedom
 // tree cleanArticle already produced — no reparse, no runtime cost, no
 // dependency beyond the linkedom already in the graph.
 //

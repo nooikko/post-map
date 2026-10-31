@@ -1,15 +1,3 @@
-// Facts shared between the runtime that READS the wiki mirror and the script
-// that WRITES it (scripts/fetch-redirect-targets.ts).
-//
-// This module is deliberately dependency-free — no imports at all — for the
-// same reason lib/attribution.ts is: `node --experimental-strip-types` does not
-// resolve the `@/` path alias, so a script can only pull from modules that
-// import nothing. Keep it that way, or the fetch script stops running.
-//
-// The point of sharing is drift: if the script's idea of "this is a redirect
-// stub" ever diverges from lib/wiki/load.ts's, the script fetches targets the
-// runtime will never follow, and the mirror grows files nothing reads.
-
 /** Fandom renders a redirect as `.redirectMsg` wrapping a link to the target. */
 export const REDIRECT_SELECTOR = '.redirectMsg .redirectText a, .redirectMsg a';
 

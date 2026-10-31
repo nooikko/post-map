@@ -38,10 +38,13 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+      - name: Test
+        run: pnpm test
+
       - name: Check NOTICE and REUSE.toml are in sync
         run: pnpm licence:check
 
-      # The build prerenders every place, so a
+      # The build complements the focused tests by prerendering every place, so a
       # broken wiki pipeline or a bad marker file fails here rather than in
       # production.
       - name: Build

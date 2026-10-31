@@ -26,7 +26,7 @@
     },
     "html": {
       "type": ["string", "null"],
-      "description": "Sanitized article HTML ready to inject into the popup. Image-bearing markup has already been stripped. Null when status != ok."
+      "description": "Image-stripped source HTML. It remains untrusted and must pass through the build-time cleaner and allowlist sanitizer before rendering. Null when status != ok."
     },
     "error": {
       "type": ["object", "null"],
@@ -56,6 +56,11 @@
           "type": "string",
           "format": "date-time",
           "description": "ISO-8601 UTC timestamp of when this file was written."
+        },
+        "revisionId": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "MediaWiki revision ID returned with the parsed HTML. Present on successful refreshes; older snapshots may omit it."
         }
       }
     }
