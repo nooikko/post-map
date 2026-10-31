@@ -1,5 +1,23 @@
+import { normalizedText, parseFragment } from '@/lib/wiki/clean';
+
 /** Fandom renders a redirect as `.redirectMsg` wrapping a link to the target. */
 export const REDIRECT_SELECTOR = '.redirectMsg .redirectText a, .redirectMsg a';
+
+/**
+ * A redirect stub is just <div class="redirectMsg">…<ul class="redirectText">
+ * <li><a title="Target">…</a></li></ul></div>. Returns the target page name,
+ * or null for a normal article.
+ *
+ * Shared by the mirror script and the runtime loader so both agree on which
+ * pages are redirects. Run it on raw mirror HTML — cleanArticle rewrites the
+ * anchor and loses the title.
+ */
+export function redirectTarget(html: string): string | null {
+    const { root } = parseFragment(html);
+    const link = root.querySelector(REDIRECT_SELECTOR);
+    if (!link) return null;
+    return (link.getAttribute('title') || normalizedText(link)).trim() || null;
+}
 
 /** Media elements dropped from mirrored HTML — see NOTICE: no article images. */
 export const IMAGE_DROP_TAGS = [

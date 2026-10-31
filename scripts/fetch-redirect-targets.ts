@@ -1,19 +1,19 @@
+import { realpathSync } from 'node:fs';
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
 
-import { parseHTML } from 'linkedom';
-
 import { WIKI_HOST } from '../lib/attribution.ts';
 import { LAYERS } from '../lib/map/config.ts';
 import { ARTICLE_NAMES } from '../lib/wiki/article-names.ts';
+import { parseFragment } from '../lib/wiki/clean.ts';
 import {
     IMAGE_DROP_CLASSES,
     IMAGE_DROP_TAGS,
-    REDIRECT_SELECTOR,
     WIKIA_CDN_HOST,
     isDisambiguation,
     isSafeName,
+    redirectTarget,
 } from '../lib/wiki/mirror.ts';
 
 const WIKI_DIR = path.join(import.meta.dirname, '..', 'public', 'data', 'Faerun', 'wiki');
@@ -48,10 +48,7 @@ function sourceUrl(name: string): string {
  * time.
  */
 export function stripImages(html: string): string {
-    const { document } = parseHTML(`<!doctype html><body><div id="root">${html}</div></body>`);
-    const root = document.getElementById('root');
-    if (!root) return html;
-
+    const { root } = parseFragment(html);
     const selectors = [
         ...IMAGE_DROP_TAGS,
         ...IMAGE_DROP_CLASSES.map((c) => `.${c}`),
@@ -65,14 +62,6 @@ export function stripImages(html: string): string {
     return root.innerHTML;
 }
 
-function redirectTargetOf(html: string): string | null {
-    const { document } = parseHTML(`<!doctype html><body><div id="root">${html}</div></body>`);
-    const link = document.getElementById('root')?.querySelector(REDIRECT_SELECTOR);
-    if (!link) return null;
-    const raw = link.getAttribute('title') || (link.textContent ?? '').replace(/\s+/g, ' ');
-    return raw.trim() || null;
-}
-
 async function findTargets(force: boolean, all: boolean): Promise<string[]> {
     const files = (await readdir(WIKI_DIR)).filter((f) => f.endsWith('.json'));
     const have = new Set(files.map((f) => path.basename(f, '.json')));
@@ -84,7 +73,15 @@ async function findTargets(force: boolean, all: boolean): Promise<string[]> {
             const collection: { features: Array<{ properties: { name: string } }> } = JSON.parse(
                 raw.replace(/^\uFEFF/, ''),
             );
-            for (const feature of collection.features) targets.add(feature.properties.name);
+            for (const { properties } of collection.features) {
+                if (isSafeName(properties.name)) {
+                    targets.add(properties.name);
+                } else {
+                    console.warn(
+                        `  warning: skipping unsafe marker name ${JSON.stringify(properties.name)} in ${layer.key}.json`,
+                    );
+                }
+            }
         }
         return [...targets].sort();
     }
@@ -99,7 +96,7 @@ async function findTargets(force: boolean, all: boolean): Promise<string[]> {
         }
         if (article.status !== 'ok' || !article.html) continue;
 
-        const target = redirectTargetOf(article.html);
+        const target = redirectTarget(article.html);
         if (!target || isDisambiguation(target)) continue;
         if (!isSafeName(target)) {
             console.warn(
@@ -183,6 +180,23 @@ export function normalize(raw: unknown, name: string, requestedName = name): Mir
     };
 }
 
+/**
+ * A failed refetch must not cost us an article we already hold: an `error`
+ * result (rate limit, maintenance, empty body) never replaces a good file.
+ * `missing` does — the wiki saying the page is gone is an answer, not a fault.
+ */
+export function keepsPrevious(previous: Partial<MirrorFile> | null, next: MirrorFile): boolean {
+    return next.status === 'error' && previous?.status === 'ok' && Boolean(previous.html);
+}
+
+async function readPrevious(name: string): Promise<Partial<MirrorFile> | null> {
+    try {
+        return JSON.parse(await readFile(path.join(WIKI_DIR, `${name}.json`), 'utf8'));
+    } catch {
+        return null;
+    }
+}
+
 async function write(name: string, article: MirrorFile): Promise<void> {
     if (!isSafeName(name)) throw new Error(`unsafe article name: ${JSON.stringify(name)}`);
     await mkdir(WIKI_DIR, { recursive: true });
@@ -209,9 +223,13 @@ async function main(): Promise<number> {
             continue;
         }
         const article = normalize(raw, name, requestedName);
-        await write(name, article);
         stats[article.status] += 1;
-        const target = article.html ? redirectTargetOf(article.html) : null;
+        if (keepsPrevious(await readPrevious(name), article)) {
+            console.error(`  ${name}: ${article.error?.code}; kept the previous article`);
+            continue;
+        }
+        await write(name, article);
+        const target = article.html ? redirectTarget(article.html) : null;
         if (all && target && !isDisambiguation(target) && isSafeName(target)) targets.add(target);
         console.log(`  ${name}: ${article.status} (${article.html?.length ?? 0} chars)`);
     }
@@ -221,6 +239,7 @@ async function main(): Promise<number> {
     return failed || stats.error ? 1 : 0;
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === import.meta.filename) {
+// Compare real paths: import.meta.filename is resolved through symlinks, argv[1] is as typed.
+if (process.argv[1] && realpathSync(process.argv[1]) === import.meta.filename) {
     process.exitCode = await main();
 }

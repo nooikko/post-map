@@ -3,7 +3,8 @@ import test from 'node:test';
 
 import { cleanArticle, parseFragment } from '../lib/wiki/clean.ts';
 import { splitArticle } from '../lib/wiki/infobox.ts';
-import { normalize, stripImages } from '../scripts/fetch-redirect-targets.ts';
+import { redirectTarget } from '../lib/wiki/mirror.ts';
+import { keepsPrevious, normalize, stripImages } from '../scripts/fetch-redirect-targets.ts';
 
 const response = (html) => ({
     parse: { title: 'Town', pageid: 123, revid: 456, text: { '*': html } },
@@ -99,4 +100,29 @@ test('normalization distinguishes missing pages from API errors', () => {
     assert.equal(missing.status, 'missing');
     assert.equal(missing.html, null);
     assert.equal(normalize({ error: { code: 'ratelimited' } }, 'Town').status, 'error');
+});
+
+test('a failed refetch keeps the article already mirrored', () => {
+    const good = { status: 'ok', html: '<p>Waterdeep</p>' };
+    const failed = normalize({ error: { code: 'ratelimited' } }, 'Waterdeep');
+    assert.equal(keepsPrevious(good, failed), true);
+    assert.equal(keepsPrevious(good, normalize({}, 'Waterdeep')), true);
+    assert.equal(keepsPrevious(null, failed), false);
+    assert.equal(keepsPrevious({ status: 'error', html: null }, failed), false);
+    const missing = normalize({ error: { code: 'missingtitle' } }, 'Waterdeep');
+    assert.equal(keepsPrevious(good, missing), false);
+});
+
+test('redirect stubs resolve to their target page', () => {
+    assert.equal(
+        redirectTarget(
+            '<div class="redirectMsg"><ul class="redirectText"><li><a title="Waterdeep">x</a></li></ul></div>',
+        ),
+        'Waterdeep',
+    );
+    assert.equal(
+        redirectTarget('<div class="redirectMsg"><a>  City of\n Splendors </a></div>'),
+        'City of Splendors',
+    );
+    assert.equal(redirectTarget('<p>A normal article</p>'), null);
 });

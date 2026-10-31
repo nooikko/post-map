@@ -1,9 +1,9 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 
-import { cleanArticle, normalizedText, parseFragment } from '@/lib/wiki/clean';
+import { cleanArticle, parseFragment } from '@/lib/wiki/clean';
 import { splitArticle } from '@/lib/wiki/infobox';
-import { REDIRECT_SELECTOR } from '@/lib/wiki/mirror';
+import { redirectTarget } from '@/lib/wiki/mirror';
 import type { ArticleMeta, PlaceArticle } from '@/lib/wiki/types';
 
 // Reads a place's article from the local mirror under
@@ -43,20 +43,6 @@ function metaFor(article: WikiFile, pageName: string): ArticleMeta {
         title: article.title || article.name || pageName,
         fetchedAt: article.source?.fetchedAt ?? '',
     };
-}
-
-/**
- * A redirect stub is just <div class="redirectMsg">…<ul class="redirectText">
- * <li><a title="Target">…</a></li></ul></div>. Returns the target page name,
- * or null for a normal article.
- *
- * Runs before cleanArticle, which would rewrite the anchor and lose the title.
- */
-function redirectTarget(html: string): string | null {
-    const { root } = parseFragment(html);
-    const link = root.querySelector(REDIRECT_SELECTOR);
-    if (!link) return null;
-    return (link.getAttribute('title') || normalizedText(link)).trim() || null;
 }
 
 /**
