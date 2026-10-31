@@ -84,7 +84,7 @@ function stripImages(html: string): string {
         '[data-source="image"]',
         `a[href*="${WIKIA_CDN_HOST}"]`,
     ];
-    root.querySelectorAll(selectors.join(',')).forEach((el) => el.remove());
+    root.querySelectorAll(selectors.join(',')).forEach((el) => { el.remove(); });
 
     return root.innerHTML;
 }

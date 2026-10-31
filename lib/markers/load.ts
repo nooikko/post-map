@@ -59,7 +59,8 @@ const WARNED = Symbol.for('postmap.markers.warned');
 function warnOnce(message: string): void {
     if (process.env.NODE_ENV === 'development') return;
     const scope = globalThis as unknown as Record<symbol, Set<string> | undefined>;
-    const seen = (scope[WARNED] ??= new Set<string>());
+    const seen = scope[WARNED] ?? new Set<string>();
+    scope[WARNED] = seen;
     if (seen.has(message)) return;
     seen.add(message);
     console.warn(message);

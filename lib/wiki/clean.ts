@@ -80,7 +80,7 @@ export function parseFragment(html: string): ParsedRoot {
  * them.
  */
 export function cleanArticle(root: Element, document: Document): void {
-    root.querySelectorAll(DROP_SELECTORS.join(',')).forEach((el) => el.remove());
+    root.querySelectorAll(DROP_SELECTORS.join(',')).forEach((el) => { el.remove(); });
 
     // The "This is a Good Article!" badge is a plain <p><b>…</b></p> with no
     // stable class — match it by text and drop the whole paragraph.

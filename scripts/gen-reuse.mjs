@@ -8,9 +8,6 @@
 // LICENSES/MIT.txt and LICENSES/CC-BY-SA-3.0.txt are NOT generated. They are
 // the verbatim SPDX texts and are committed as fetched — never reflowed.
 //
-// Requires Node's --experimental-strip-types; both lib modules are dependency
-// free precisely so they can be loaded this way.
-
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';

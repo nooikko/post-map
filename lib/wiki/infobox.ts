@@ -152,7 +152,7 @@ function splitByBr(node: Element): string[] {
 /** Remove prose leftovers that survive the main scrub: empty paragraphs, stray wrappers. */
 function tidyProse(root: Element): void {
     root.querySelectorAll('p.mw-empty-elt, .rightscroll, figure, .floatleft, .floatright')
-        .forEach((el) => el.remove());
+        .forEach((el) => { el.remove(); });
     root.querySelectorAll('p').forEach((p) => {
         if (!(p.textContent ?? '').trim() && !p.querySelector('img,table')) p.remove();
     });

@@ -45,8 +45,7 @@ export function PlacePanel({ marker, article, dismiss }: PlacePanelProps) {
 
 function PlaceBody({ marker, article }: { marker: Marker; article: PlaceArticle | null }) {
     if (!article) {
-        // 18 of the 297 markers point at pages the wiki doesn't have. No wiki
-        // text is used, so no CC BY-SA credit is rendered here.
+        // No wiki text is used, so no CC BY-SA credit is rendered here.
         return (
             <div className={styles.status}>
                 <span>No archive entry for this place.</span>
@@ -87,12 +86,7 @@ function PlaceBody({ marker, article }: { marker: Marker; article: PlaceArticle 
         <>
             <div className={`${styles.grid} ${hasRail ? styles.hasRail : ''}`}>
                 <article className={styles.prose}>
-                    {/*
-                      * Sanitised at build time by lib/wiki/clean.ts: scripts and
-                      * event handlers are not present in the source mirror (it is
-                      * MediaWiki parse output with images already stripped), and
-                      * every anchor has been rewritten to an absolute wiki URL.
-                      */}
+                    {/* biome-ignore lint/security/noDangerouslySetInnerHtml: Mirrored article markup is required here; its sanitization contract is in lib/wiki/sanitize.ts. */}
                     <div dangerouslySetInnerHTML={{ __html: article.proseHtml }} />
                 </article>
                 {hasRail && <InfoboxRail groups={article.groups} />}

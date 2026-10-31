@@ -1,3 +1,4 @@
+// biome-ignore-all lint/suspicious/noArrayIndexKey: These stateless lists render immutable article snapshots whose repeated values have no source IDs.
 import type { InfoboxField, InfoboxGroup } from '@/lib/wiki/types';
 
 import styles from './InfoboxRail.module.css';

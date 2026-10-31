@@ -150,16 +150,16 @@ body {
  * and hairline border as the topbar and sidebar.
  */
 .ol-zoom {
-    top: auto !important;
-    left: auto !important;
-    right: var(--map-control-inset) !important;
+    top: auto;
+    left: auto;
+    right: var(--map-control-inset);
     /*
      * The inset is measured from the safe area rather than the viewport edge,
      * so on a phone with a home indicator the control sits above it instead of
      * half under it. env() resolves to 0 everywhere else, which leaves the
      * desktop position untouched.
      */
-    bottom: calc(var(--map-control-inset) + env(safe-area-inset-bottom, 0px)) !important;
+    bottom: calc(var(--map-control-inset) + env(safe-area-inset-bottom, 0px));
     display: flex;
     flex-direction: column;
     /*
@@ -274,7 +274,7 @@ body {
 
 /* Measure cursor + floating readout */
 body.measuring .ol-viewport {
-    cursor: crosshair !important;
+    cursor: crosshair;
 }
 
 /*
@@ -284,7 +284,7 @@ body.measuring .ol-viewport {
  * signals a target. The tip beside the cursor says which of the two it is.
  */
 body.measuring.measuring-vertex .ol-viewport {
-    cursor: pointer !important;
+    cursor: pointer;
 }
 
 .measure-cursor-tip {
