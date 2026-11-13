@@ -60,7 +60,7 @@ export const SITE_KEYWORDS: readonly string[] = [
     'Forgotten Realms map',
     'interactive Faerun map',
     'D&D map',
-    'D&D 3.5 map',
+    'D&D 3rd edition map',
     'Dungeons and Dragons map',
     'Sword Coast map',
     'Toril map',

@@ -1,4 +1,4 @@
-// Composes the two flat images of the map from the tile pyramid:
+// Composes the two flat images of the map from the enhanced tile pyramid:
 //
 //   public/faerun-map.webp      the poster shown under the OpenLayers canvas
 //   public/faerun-map-card.jpg  the 1200x630 Open Graph / Twitter card
@@ -25,6 +25,11 @@ import process from 'node:process';
 import sharp from 'sharp';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
+
+// The enhanced set: it is what the map opens with, so it is what the poster
+// under it and the social card should match. Mirrors TILE_SETS in
+// lib/map/config.ts.
+const TILES = path.join(ROOT, 'public', 'tiles', 'v2', 'enhanced');
 
 // Mirrors lib/map/config.ts. Not imported from it: this is a plain .mjs script
 // and that module is TypeScript with a '@/' path alias behind it.
@@ -89,7 +94,7 @@ async function composite() {
     for (let x = 0; x < cols; x += 1) {
         for (let y = 0; y < rows; y += 1) {
             tiles.push({
-                input: path.join(ROOT, 'public', 'tiles', String(SOURCE_ZOOM), String(x), `${y}.webp`),
+                input: path.join(TILES, String(SOURCE_ZOOM), String(x), `${y}.webp`),
                 left: x * TILE_PX,
                 top: y * TILE_PX,
             });
