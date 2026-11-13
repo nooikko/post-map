@@ -29,7 +29,7 @@ export function ChromeContents({ markers, onSelect }: ChromeContentsProps) {
         <>
             <PlaceSearch markers={markers} onSelect={onSelect} />
             <MeasureControl />
-            <LayerToggles />
+            <LayerToggles markers={markers} />
             <AboutMap placeCount={markers.length} />
             <Credits />
         </>

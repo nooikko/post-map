@@ -6,6 +6,9 @@ import { IMG_H, IMG_W, METERS_PER_PIXEL } from './config';
 
 export type Coord = [number, number];
 
+/** International mile. Shared by the measure tool and the server-rendered distances. */
+export const METERS_PER_MILE = 1609.344;
+
 /**
  * Image pixel (x, y) — with Y growing downward — to projection coordinate
  * (Y grows upward, origin at the bottom-left of the image extent).

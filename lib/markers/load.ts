@@ -92,8 +92,3 @@ async function buildMarkers(): Promise<Marker[]> {
 
     return entries.map(({ item, slug }) => ({ slug, ...item }));
 }
-
-export async function findMarkerBySlug(slug: string): Promise<Marker | undefined> {
-    const markers = await loadMarkers();
-    return markers.find((m) => m.slug === slug);
-}

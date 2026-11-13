@@ -2,16 +2,23 @@ import type { ReactNode } from 'react';
 
 import { WIKI_NAME, articleUrl } from '@/lib/attribution';
 import { layerByKey } from '@/lib/map/config';
+import type { Place } from '@/lib/place/get';
 import type { Marker } from '@/lib/markers/load';
 import type { PlaceArticle } from '@/lib/wiki/types';
 
 import { ArticleCredit } from './ArticleCredit';
 import { InfoboxRail } from './InfoboxRail';
+import { NearbyPlaces, type PlaceLinkMode } from './NearbyPlaces';
 import styles from './PlacePanel.module.css';
 
 interface PlacePanelProps {
-    marker: Marker;
-    article: PlaceArticle | null;
+    place: Place;
+    /**
+     * h1 on the standalone page, where the place is what the page is about; h2
+     * in the modal, which sits under the map page's own h1.
+     */
+    headingLevel: 1 | 2;
+    linkMode: PlaceLinkMode;
     /** Close affordance — a link on the standalone page, a button in the modal. */
     dismiss?: ReactNode;
 }
@@ -21,23 +28,30 @@ interface PlacePanelProps {
  * modal so both render identical content — including the CC BY-SA credit,
  * which is a licence condition on every article view.
  */
-export function PlacePanel({ marker, article, dismiss }: PlacePanelProps) {
+export function PlacePanel({ place, headingLevel, linkMode, dismiss }: PlacePanelProps) {
+    const { marker, article, nearby } = place;
     const layer = layerByKey(marker.category);
+    const Name = headingLevel === 1 ? 'h1' : 'h2';
 
     return (
         <>
             <header className={styles.header}>
                 <span className={styles.swatch} style={{ background: layer?.color, color: layer?.color }} />
-                <span className={styles.heading}>
-                    <span className={styles.name}>{marker.name}</span>
+                <div className={styles.heading}>
+                    <Name className={styles.name}>{marker.name}</Name>
                     {article?.epithet && <span className={styles.subtitle}>{article.epithet}</span>}
-                </span>
+                </div>
                 <span className={styles.type}>{layer?.label ?? marker.category}</span>
                 {dismiss}
             </header>
 
             <div className={styles.body}>
                 <PlaceBody marker={marker} article={article} />
+                <NearbyPlaces
+                    places={nearby}
+                    linkMode={linkMode}
+                    headingLevel={headingLevel === 1 ? 2 : 3}
+                />
             </div>
         </>
     );

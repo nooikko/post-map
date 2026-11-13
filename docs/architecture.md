@@ -22,7 +22,7 @@ app/
   privacy/                    privacy policy (canonical; PRIVACY.md points here)
   robots.ts  sitemap.ts
 components/
-  map/                        MapShell, poster, measure tool, marker interactions
+  map/                        MapShell, poster, markers, measure tool
   place/                      PlacePanel, InfoboxRail, ArticleCredit
   chrome/                     Topbar, bottom sheet, search, layers, about, credits
   seo/                        JsonLd
@@ -66,6 +66,23 @@ render *before* the map container, not inside it: OpenLayers appends its
 viewport to whatever element it is handed, so a sibling image in there would lay
 out above the map rather than behind it.
 
+The place markers are not drawn by OpenLayers. `components/map/MapMarkers.tsx`
+renders each one as a link to its place page, in the server-rendered HTML,
+positioned by percentage inside a frame the size of the whole map. Before
+OpenLayers loads, that frame and the poster are both fitted the way the map
+opens — contained on a mouse, covering on touch — so dots, poster and first
+tiles line up, dot size included. Once the map exists the frame is portalled
+into `MapCore.markerHost`, the element of a source-less OpenLayers layer
+(`lib/map/create.ts`). As a layer it stacks between the tiles and the measure
+line (`LAYER_Z` in `lib/map/config.ts`), and inside the viewport, so a drag or
+wheel that starts on a dot still reaches the map. A `postrender` listener
+resizes and translates that one element to follow the view. The dots are
+`tabIndex={-1}` and `draggable={false}`, and the viewport is set to `overflow:
+clip` so focusing an off-screen dot cannot scroll the map aside. A pointer
+click that began as a drag, or while measuring, does not navigate; a keyboard
+activation always does. Layer visibility is shared through
+`components/map/layerVisibility.ts`.
+
 ## The chrome
 
 `ChromeContents.tsx` is the controls themselves — search, units, layers, about,
@@ -96,6 +113,14 @@ URL directly renders the standalone page instead.
 Both render the same `PlacePanel` component, deliberately: the modal and the
 standalone page cannot drift apart, and the per-article licence credit cannot
 end up on one but not the other.
+
+Links from one place to another differ by route. In the modal they are
+client-side navigations with `replace`, which `@modal` intercepts, so the
+neighbour opens in the same dialog over the same map, and closing the dialog
+(`router.back()`) returns to the map rather than to the previous place. On the
+standalone page they are plain `<a>` elements: a client-side navigation from
+there is intercepted too, and would float the neighbour as a dialog over the
+page instead of loading it as one.
 
 Place pages are `noindex` and disallowed in `robots.txt` (`app/robots.ts` and
 `lib/place/get.ts`). This is intentional — the site should not compete with the

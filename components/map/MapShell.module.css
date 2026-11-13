@@ -55,7 +55,8 @@
  * Declared once so they cannot drift.
  */
 .map,
-.poster {
+.poster,
+.markers {
     position: absolute;
     top: var(--topbar-h);
     left: var(--sidebar-w);
@@ -74,12 +75,12 @@
 }
 
 /*
- * Behind the map, dimmed, and inert.
+ * Behind the map, and inert.
  *
- * Dimmed rather than full strength because the poster is a cover-crop of the
- * whole continent and OpenLayers opens fitted to the viewport, so the two do
- * not line up. At full opacity the handover reads as the map jumping; at 65%
- * it reads as the map resolving, which is what is actually happening.
+ * Fitted the way OpenLayers opens (lib/map/create.ts): the whole image
+ * contained and centred under a mouse, covering the viewport under a finger.
+ * The server-rendered dots (MapMarkers) sit in the same fit, so poster, dots
+ * and the first tiles all line up.
  */
 /*
  * The wrapper carries the insets and the image fills it, because insets cannot
@@ -100,9 +101,14 @@
     display: block;
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    opacity: 0.65;
+    object-fit: contain;
     user-select: none;
+}
+
+@media (pointer: coarse) {
+    .posterImage {
+        object-fit: cover;
+    }
 }
 
 .collapsed .sidebar {
@@ -110,7 +116,8 @@
 }
 
 .collapsed .map,
-.collapsed .poster {
+.collapsed .poster,
+.collapsed .markers {
     left: 0;
 }
 
@@ -129,8 +136,10 @@
 
     .map,
     .poster,
+    .markers,
     .collapsed .map,
-    .collapsed .poster {
+    .collapsed .poster,
+    .collapsed .markers {
         left: 0;
         transition: none;
     }

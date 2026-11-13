@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 
 import type { MapCore } from '@/lib/map/create';
-import { METERS_PER_PIXEL } from '@/lib/map/config';
+import { LAYER_Z, METERS_PER_PIXEL } from '@/lib/map/config';
 import { isCoarsePointer } from '@/lib/pointer';
 import { formatDistance, subscribeUnit } from '@/lib/settings/units';
 
@@ -137,6 +137,11 @@ export function useMeasureTool(core: MapCore | null): MeasureControls {
                 updateWhileAnimating: true,
                 updateWhileInteracting: true,
                 style: measureStyle,
+                // Over the place dots, which are a layer of their own. Its own
+                // class gives it its own canvas, which globals.css lets the
+                // pointer pass through to the dots beneath.
+                zIndex: LAYER_Z.measure,
+                className: 'ol-layer measure-layer',
             });
             map.addLayer(layer);
 

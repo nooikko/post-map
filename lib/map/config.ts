@@ -20,6 +20,12 @@ export const NATIVE_ZOOM = Math.ceil(Math.log2(Math.max(IMG_W, IMG_H) / 256));
 // image pixel.
 export const METERS_PER_PIXEL = 1287.473;
 
+/**
+ * Stacking order of the map's layers: the tiles, the place dots over them
+ * (components/map/MapMarkers.tsx), and the measure line over both.
+ */
+export const LAYER_Z = { tiles: 0, markers: 1, measure: 2 } as const;
+
 // Root-absolute: Next resolves relative URLs against the current route, so
 // `/place/waterdeep` would otherwise look for tiles under `/place/tiles/...`.
 export const TILE_URL = '/tiles/{z}/{x}/{y}.webp';
@@ -37,6 +43,8 @@ export type LayerKey =
 export interface LayerDef {
     key: LayerKey;
     label: string;
+    /** One of them, for prose: "Waterdeep is a port capital". */
+    singular: string;
     color: string;
     radius: number;
 }
@@ -44,14 +52,14 @@ export interface LayerDef {
 // Marker categories, in render order (later = on top).
 // Color + radius distinguish them at a glance.
 export const LAYERS: readonly LayerDef[] = [
-    { key: 'Ports', label: 'Ports', color: '#50e3c2', radius: 5 },
-    { key: 'Cities', label: 'Cities', color: '#4a90e2', radius: 5 },
-    { key: 'PortCapitals', label: 'Port Capitals', color: '#9013fe', radius: 6 },
-    { key: 'Capitals', label: 'Capitals', color: '#f5a623', radius: 6 },
-    { key: 'Temples', label: 'Temples', color: '#ffffff', radius: 4 },
-    { key: 'Sites', label: 'Sites', color: '#f57c00', radius: 4 },
-    { key: 'Fortresses', label: 'Fortresses', color: '#d0021b', radius: 5 },
-    { key: 'Ruins', label: 'Ruins', color: '#8b572a', radius: 4 },
+    { key: 'Ports', label: 'Ports', singular: 'Port', color: '#50e3c2', radius: 5 },
+    { key: 'Cities', label: 'Cities', singular: 'City', color: '#4a90e2', radius: 5 },
+    { key: 'PortCapitals', label: 'Port Capitals', singular: 'Port capital', color: '#9013fe', radius: 6 },
+    { key: 'Capitals', label: 'Capitals', singular: 'Capital', color: '#f5a623', radius: 6 },
+    { key: 'Temples', label: 'Temples', singular: 'Temple', color: '#ffffff', radius: 4 },
+    { key: 'Sites', label: 'Sites', singular: 'Site', color: '#f57c00', radius: 4 },
+    { key: 'Fortresses', label: 'Fortresses', singular: 'Fortress', color: '#d0021b', radius: 5 },
+    { key: 'Ruins', label: 'Ruins', singular: 'Ruin', color: '#8b572a', radius: 4 },
 ];
 
 export function layerByKey(key: string): LayerDef | undefined {

@@ -138,6 +138,18 @@ body {
     outline: none;
 }
 
+/* The place dots' layer (lib/map/create.ts, components/map/MapMarkers.tsx). */
+.map-markers {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+/* Drawn over the dots, so it must let the pointer through to them. */
+.measure-layer {
+    pointer-events: none;
+}
+
 .ol-control {
     background: none;
     padding: 0;
@@ -256,20 +268,6 @@ body {
  */
 .ol-attribution {
     display: none;
-}
-
-/* Marker hover label */
-.ol-marker-tooltip {
-    background: rgba(20, 18, 14, 0.94);
-    color: var(--parchment);
-    padding: 3px 8px;
-    border: 1px solid var(--gold-line);
-    border-radius: 3px;
-    font-family: var(--font-serif);
-    font-size: 12px;
-    white-space: nowrap;
-    pointer-events: none;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
 /* Measure cursor + floating readout */
