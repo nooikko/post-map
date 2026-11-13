@@ -105,7 +105,7 @@ export function webApplicationNode(placeCount: number): JsonLdNode {
         about: [
             { '@type': 'Thing', name: 'Faerûn' },
             { '@type': 'Thing', name: 'Forgotten Realms' },
-            { '@type': 'Thing', name: 'Dungeons & Dragons 3.5 edition' },
+            { '@type': 'Thing', name: 'Dungeons & Dragons 3rd edition' },
         ],
         // A rich result that read as official would be the confusion the Fan
         // Content Policy exists to prevent, so the notice goes in the

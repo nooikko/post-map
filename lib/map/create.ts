@@ -13,7 +13,16 @@ import TileGrid from 'ol/tilegrid/TileGrid.js';
 import { defaults as defaultControls } from 'ol/control/defaults.js';
 import { defaults as defaultInteractions } from 'ol/interaction/defaults.js';
 
-import { IMG_H, IMG_W, LAYER_Z, MAX_ZOOM, MIN_ZOOM, NATIVE_ZOOM, TILE_URL } from './config';
+import {
+    IMG_H,
+    IMG_W,
+    LAYER_Z,
+    MAX_ZOOM,
+    MIN_ZOOM,
+    NATIVE_ZOOM,
+    TILE_SETS,
+    type MapVersion,
+} from './config';
 import { clampCenter, coverZoomFor, fitZoomFor, type Coord } from './geometry';
 import { isCoarsePointer } from '@/lib/pointer';
 
@@ -43,8 +52,42 @@ function clamp(value: number, min: number, max: number): number {
 
 // resolutions[z] = projection units per pixel at zoom z. At NATIVE_ZOOM the
 // coordinate space is 1:1 with image pixels.
-function makeResolutions(): number[] {
-    return Array.from({ length: MAX_ZOOM + 1 }, (_, z) => 2 ** (NATIVE_ZOOM - z));
+function makeResolutions(maxZoom: number = MAX_ZOOM): number[] {
+    return Array.from({ length: maxZoom + 1 }, (_, z) => 2 ** (NATIVE_ZOOM - z));
+}
+
+/**
+ * The tile source for one version of the map.
+ *
+ * Each zoom has its own dedicated tiles, so a zoomed-out view loads a handful
+ * of small overview tiles instead of downscaling the deepest set. Tiles are
+ * @2x (512px physical) over a 256px logical grid — tilePixelRatio:2 tells OL
+ * the images are double-density, keeping the view math in image-pixel space
+ * while rendering crisp on HiDPI screens.
+ *
+ * The grid stops at the set's own deepest level. The view does not: zoomed in
+ * past it, OpenLayers draws that level enlarged, which is how `original` shows
+ * the source picture's own pixels without a second copy of them on disk.
+ */
+function makeTileSource(projection: Projection, version: MapVersion): XYZ {
+    const { url, maxZoom } = TILE_SETS[version];
+
+    const tileGrid = new TileGrid({
+        extent: EXTENT,
+        origin: [0, IMG_H], // top-left of the image; XYZ convention
+        resolutions: makeResolutions(maxZoom),
+        tileSize: TILE_SIZE, // logical size; physical is 512 via tilePixelRatio
+    });
+
+    return new XYZ({
+        projection,
+        tileGrid,
+        tilePixelRatio: 2,
+        wrapX: false,
+        cacheSize: 4096,
+        tileUrlFunction: ([z, x, y]) =>
+            url.replace('{z}', String(z)).replace('{x}', String(x)).replace('{y}', String(y)),
+    });
 }
 
 /**
@@ -62,12 +105,17 @@ export interface MapCore {
      * reaches the map.
      */
     markerHost: HTMLElement;
+    /**
+     * Draw a different version of the map. The view, the markers and any
+     * measurement stay exactly where they are: both versions share one grid.
+     */
+    setMapVersion: (version: MapVersion) => void;
     /** Re-derive minZoom for the current viewport, then clamp. Call on resize. */
     applyFitConstraints: () => void;
     dispose: () => void;
 }
 
-export function createMapCore(target: HTMLElement): MapCore {
+export function createMapCore(target: HTMLElement, version: MapVersion): MapCore {
     const resolutions = makeResolutions();
     const coarse = isCoarsePointer();
 
@@ -77,30 +125,8 @@ export function createMapCore(target: HTMLElement): MapCore {
         extent: EXTENT,
     });
 
-    // Full pyramid z0–z6: each zoom has its own dedicated tiles, so a zoomed-out
-    // view loads a handful of small overview tiles instead of downscaling the
-    // whole z6 set. Tiles are @2x (512px physical) over a 256px logical grid —
-    // tilePixelRatio:2 tells OL the images are double-density, keeping the view
-    // math in image-pixel space while rendering crisp on HiDPI screens.
-    const tileGrid = new TileGrid({
-        extent: EXTENT,
-        origin: [0, IMG_H], // top-left of the image; XYZ convention
-        resolutions,
-        tileSize: TILE_SIZE, // logical size; physical is 512 via tilePixelRatio
-    });
-
-    const tileSource = new XYZ({
-        projection,
-        tileGrid,
-        tilePixelRatio: 2,
-        wrapX: false,
-        cacheSize: 4096,
-        tileUrlFunction: ([z, x, y]) =>
-            TILE_URL.replace('{z}', String(z)).replace('{x}', String(x)).replace('{y}', String(y)),
-    });
-
     const tileLayer = new TileLayer({
-        source: tileSource,
+        source: makeTileSource(projection, version),
         preload: Infinity, // keep lower-res tiles around as fallback
         // Clip rendering to the image bounds. The low-zoom overview tiles are
         // square and larger than the (non-square) map, so they carry the
@@ -218,9 +244,16 @@ export function createMapCore(target: HTMLElement): MapCore {
     };
     map.on('moveend', onMoveEnd);
 
+    let drawn = version;
+
     return {
         map,
         markerHost,
+        setMapVersion: (next) => {
+            if (next === drawn) return;
+            drawn = next;
+            tileLayer.setSource(makeTileSource(projection, next));
+        },
         applyFitConstraints,
         dispose: () => {
             map.un('moveend', onMoveEnd);

@@ -12,11 +12,13 @@ read that place's Forgotten Realms Wiki article without leaving the map.
 
 Not affiliated with, endorsed, or approved by Wizards of the Coast.
 
-![The whole of Faerûn, with all 297 places marked and the search box, unit picker, category layers, and licence notices in the sidebar](docs/screenshot.webp)
+![The whole of Faerûn, with all 297 places marked, the search box, unit picker and category layers in the sidebar, and map options and credits in the top bar](docs/screenshot.webp)
 
 ## Features
 
 - **The whole of Faerûn**, tiled — smooth pan and zoom, no external tile service.
+- **Two versions of the map** — one cleaned up for close viewing, and the
+  original as published, switchable from the map options.
 - **297 places** across eight categories — Capitals, Cities, Ports, Port
   Capitals, Fortresses, Ruins, Sites, and Temples — each toggleable.
 - **Place articles** from the Forgotten Realms Wiki, in a panel beside the map,
@@ -61,14 +63,14 @@ pnpm start
 | `pnpm typecheck` | `tsc --noEmit` |
 | `pnpm licence` | Regenerate `NOTICE`, `REUSE.toml` and `LICENSES/` from `lib/attribution.ts` and `lib/licence-scope.ts` |
 | `pnpm licence:check` | Fail if any of those have drifted; CI runs this |
-| `pnpm images` | Recompose `public/faerun-map*` from the tile pyramid |
+| `pnpm images` | Recompose `public/faerun-map*` from the enhanced tiles |
 | `pnpm fetch:redirects` | Top up the wiki mirror; `--force` re-fetches |
 
 `licence` is a pair of narrower scripts — `notice` and `reuse`, each with a
 `:check` variant — for when only one of the generated files is in question.
 
 `images` is not part of the build. Its two outputs are committed alongside the
-tiles they are cut from, so it only needs running when the pyramid changes.
+tiles they are cut from, so it only needs running when the tiles change.
 
 </details>
 
