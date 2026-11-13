@@ -2,6 +2,8 @@
 
 import { useSyncExternalStore } from 'react';
 
+import { METERS_PER_MILE } from '@/lib/map/geometry';
+
 // Distance units for the measure tool. The preference lives inline in the Tools
 // section rather than behind a settings dialog; there is nothing else to put in
 // one.
@@ -10,8 +12,6 @@ export type DistanceUnit = 'mi' | 'km';
 
 const STORAGE_KEY = 'postmap:units:v1';
 const DEFAULT_UNIT: DistanceUnit = 'mi';
-
-const METERS_PER_MILE = 1609.344;
 
 let unit: DistanceUnit | null = null;
 const listeners = new Set<() => void>();

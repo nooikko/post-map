@@ -35,8 +35,9 @@ export default async function PlaceModalPage({ params }: PageProps) {
     return (
         <PlaceModal>
             <PlacePanel
-                marker={place.marker}
-                article={place.article}
+                place={place}
+                headingLevel={2}
+                linkMode="modal"
                 dismiss={<ModalCloseButton />}
             />
         </PlaceModal>

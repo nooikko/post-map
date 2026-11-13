@@ -3,37 +3,19 @@
 // import time would run it during SSR. Nothing in this module executes until
 // createMapCore is called from an effect.
 
-import Feature from 'ol/Feature.js';
 import OLMap from 'ol/Map.js';
 import View from 'ol/View.js';
-import Point from 'ol/geom/Point.js';
+import Layer from 'ol/layer/Layer.js';
 import TileLayer from 'ol/layer/Tile.js';
-import VectorLayer from 'ol/layer/Vector.js';
 import Projection from 'ol/proj/Projection.js';
-import VectorSource from 'ol/source/Vector.js';
 import XYZ from 'ol/source/XYZ.js';
-import CircleStyle from 'ol/style/Circle.js';
-import Fill from 'ol/style/Fill.js';
-import Stroke from 'ol/style/Stroke.js';
-import Style from 'ol/style/Style.js';
 import TileGrid from 'ol/tilegrid/TileGrid.js';
 import { defaults as defaultControls } from 'ol/control/defaults.js';
 import { defaults as defaultInteractions } from 'ol/interaction/defaults.js';
 
-import {
-    IMG_H,
-    IMG_W,
-    LAYERS,
-    MAX_ZOOM,
-    MIN_ZOOM,
-    NATIVE_ZOOM,
-    TILE_URL,
-    type LayerDef,
-    type LayerKey,
-} from './config';
-import { clampCenter, coverZoomFor, fitZoomFor, pixelToCoord, type Coord } from './geometry';
+import { IMG_H, IMG_W, LAYER_Z, MAX_ZOOM, MIN_ZOOM, NATIVE_ZOOM, TILE_URL } from './config';
+import { clampCenter, coverZoomFor, fitZoomFor, type Coord } from './geometry';
 import { isCoarsePointer } from '@/lib/pointer';
-import type { Marker } from '@/lib/markers/load';
 
 const TILE_SIZE = 256;
 const EXTENT: [number, number, number, number] = [0, 0, IMG_W, IMG_H];
@@ -65,22 +47,27 @@ function makeResolutions(): number[] {
     return Array.from({ length: MAX_ZOOM + 1 }, (_, z) => 2 ** (NATIVE_ZOOM - z));
 }
 
-export interface MarkerLayer {
-    def: LayerDef;
-    layer: VectorLayer<VectorSource>;
-    source: VectorSource;
-    count: number;
-}
-
+/**
+ * The tiled map. The place markers are not drawn by it: they are DOM links
+ * (components/map/MapMarkers.tsx), so that they exist in the server-rendered
+ * page.
+ */
 export interface MapCore {
     map: OLMap;
-    layers: Record<LayerKey, MarkerLayer>;
+    /**
+     * Where MapMarkers puts the dots once the map exists: the element of a
+     * layer of its own, so the dots stack among the map's layers — over the
+     * tiles, under the measure line — rather than over all of them, and sit
+     * inside the viewport, so a drag or wheel that starts on a dot still
+     * reaches the map.
+     */
+    markerHost: HTMLElement;
     /** Re-derive minZoom for the current viewport, then clamp. Call on resize. */
     applyFitConstraints: () => void;
     dispose: () => void;
 }
 
-export function createMapCore(target: HTMLElement, markers: readonly Marker[]): MapCore {
+export function createMapCore(target: HTMLElement): MapCore {
     const resolutions = makeResolutions();
     const coarse = isCoarsePointer();
 
@@ -120,7 +107,16 @@ export function createMapCore(target: HTMLElement, markers: readonly Marker[]): 
         // original art's out-of-bounds ocean fill in the margins; without this
         // clip that fill bleeds past the map edges at zoomed-out views.
         extent: EXTENT,
+        zIndex: LAYER_Z.tiles,
     });
+
+    // A layer with no source that renders as one fixed element. OpenLayers
+    // puts whatever `render` returns into its layer stack in zIndex order and
+    // leaves it alone otherwise; MapMarkers fills it and keeps it in step
+    // with the view.
+    const markerHost = document.createElement('div');
+    markerHost.className = 'map-markers';
+    const markerLayer = new Layer({ render: () => markerHost, zIndex: LAYER_Z.markers });
 
     const view = new View({
         projection,
@@ -140,7 +136,7 @@ export function createMapCore(target: HTMLElement, markers: readonly Marker[]): 
 
     const map = new OLMap({
         target,
-        layers: [tileLayer],
+        layers: [tileLayer, markerLayer],
         view,
         controls: defaultControls({ attributionOptions: { collapsible: false } }),
         // See TAP_MOVE_TOLERANCE_PX. Only raised for fingers; a mouse keeps
@@ -161,7 +157,11 @@ export function createMapCore(target: HTMLElement, markers: readonly Marker[]): 
         interactions: defaultInteractions({ pinchRotate: false }),
     });
 
-    const layers = buildMarkerLayers(map, markers);
+    // OpenLayers sets the viewport to `overflow: hidden`, which the browser
+    // can still scroll: focusing a place dot off the edge of the view slid the
+    // whole map aside and left it there. Clip is never scrollable.
+    const viewport = map.getViewport();
+    if (viewport) viewport.style.overflow = 'clip';
 
     // The viewport has no size until the container is laid out, so the first
     // successful call is also the one that sizes the initial view.
@@ -220,90 +220,12 @@ export function createMapCore(target: HTMLElement, markers: readonly Marker[]): 
 
     return {
         map,
-        layers,
+        markerHost,
         applyFitConstraints,
         dispose: () => {
             map.un('moveend', onMoveEnd);
             map.setTarget(undefined);
         },
-    };
-}
-
-function buildMarkerLayers(map: OLMap, markers: readonly Marker[]): Record<LayerKey, MarkerLayer> {
-    const byCategory = new Map<LayerKey, Marker[]>();
-    for (const marker of markers) {
-        const bucket = byCategory.get(marker.category);
-        if (bucket) bucket.push(marker);
-        else byCategory.set(marker.category, [marker]);
-    }
-
-    const entries = LAYERS.map((def): [LayerKey, MarkerLayer] => {
-        const source = new VectorSource({ wrapX: false });
-        const own = byCategory.get(def.key) ?? [];
-
-        for (const marker of own) {
-            const feature = new Feature({ geometry: new Point(pixelToCoord(marker.x, marker.y)) });
-            feature.setId(marker.slug);
-            feature.set('name', marker.name);
-            feature.set('slug', marker.slug);
-            feature.set('def', def);
-            source.addFeature(feature);
-        }
-
-        const layer = new VectorLayer({
-            source,
-            style: makeZoomScaledStyle(def),
-            // Repaint vectors while panning/zooming/animating. OL defaults both
-            // to false to skip work during interactions, which makes dots vanish
-            // until mouseup. We have only a few hundred points per category —
-            // the per-frame cost is trivial and continuous visibility is the
-            // whole point.
-            updateWhileAnimating: true,
-            updateWhileInteracting: true,
-            // OL only queries the source for features within viewport ±
-            // renderBuffer (default 100px). At z=6 that's a tiny margin — a
-            // quick pan reveals features beyond it that the renderer hasn't
-            // picked up yet. For a few hundred points the RTree is cheap.
-            renderBuffer: 2000,
-        });
-        layer.set('layerKey', def.key);
-        map.addLayer(layer);
-
-        return [def.key, { def, layer, source, count: own.length }];
-    });
-
-    return Object.fromEntries(entries) as Record<LayerKey, MarkerLayer>;
-}
-
-/**
- * Scale the circle radius up at high zoom so dots stay prominent against the
- * detailed map. Resolutions for the 7-level pyramid: z0→32 … z6→0.5. One Style
- * is cached per zoom tier so OL doesn't allocate per feature per render.
- */
-function makeZoomScaledStyle(def: LayerDef): (feature: unknown, resolution: number) => Style {
-    const make = (r: number) =>
-        new Style({
-            image: new CircleStyle({
-                radius: r,
-                fill: new Fill({ color: hexAlpha(def.color, 0.92) }),
-                stroke: new Stroke({ color: '#000', width: 1 }),
-            }),
-        });
-
-    const tiers = {
-        z6: make(def.radius * 2.0),
-        z5: make(def.radius * 1.6),
-        z4: make(def.radius * 1.3),
-        z3: make(def.radius * 1.1),
-        base: make(def.radius),
-    };
-
-    return (_feature, resolution) => {
-        if (resolution <= 0.5) return tiers.z6;
-        if (resolution <= 1) return tiers.z5;
-        if (resolution <= 2) return tiers.z4;
-        if (resolution <= 4) return tiers.z3;
-        return tiers.base;
     };
 }
 
@@ -321,11 +243,4 @@ function clampView(map: OLMap, view: View, { animate = false } = {}): void {
 
     if (animate) view.animate({ center: [nx, ny], duration: 250 });
     else view.setCenter([nx, ny]);
-}
-
-function hexAlpha(hex: string, a: number): string {
-    const r = Number.parseInt(hex.slice(1, 3), 16);
-    const g = Number.parseInt(hex.slice(3, 5), 16);
-    const b = Number.parseInt(hex.slice(5, 7), 16);
-    return `rgba(${r}, ${g}, ${b}, ${a})`;
 }

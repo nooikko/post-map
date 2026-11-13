@@ -16,11 +16,11 @@ import type { MapCore } from '@/lib/map/create';
 import type { Marker } from '@/lib/markers/load';
 
 import { MapContext } from './MapContext';
+import { MapMarkers } from './MapMarkers';
 import { MapPoster } from './MapPoster';
 import styles from './MapShell.module.css';
 import { MeasureReadout } from './MeasureReadout';
 import { MeasureToggle } from './MeasureToggle';
-import { useMarkerInteractions } from './useMarkerInteractions';
 import { useMeasureTool } from './useMeasureTool';
 
 interface MapShellProps {
@@ -61,7 +61,7 @@ export function MapShell({ markers }: MapShellProps) {
         void (async () => {
             const { createMapCore } = await import('@/lib/map/create');
             if (disposed) return;
-            built = createMapCore(el, markers);
+            built = createMapCore(el);
             setCore(built);
         })();
 
@@ -70,7 +70,7 @@ export function MapShell({ markers }: MapShellProps) {
             built?.dispose();
             setCore(null);
         };
-    }, [markers]);
+    }, []);
 
     // Keep the canvas sized to its container.
     useEffect(() => {
@@ -83,16 +83,15 @@ export function MapShell({ markers }: MapShellProps) {
         return () => window.removeEventListener('resize', onResize);
     }, [core]);
 
+    // The search box's way to a place; the dots are links of their own
+    // (MapMarkers). Intercepted by app/@modal/(.)place/[slug], so the map
+    // underneath is never unmounted.
     const openPlace = useCallback(
         (slug: string) => {
-            // Intercepted by app/@modal/(.)place/[slug], so the map underneath
-            // is never unmounted.
             router.push(`/place/${slug}`);
         },
         [router],
     );
-
-    useMarkerInteractions(core, openPlace);
 
     // Instantiated once, here: the hook owns OpenLayers interactions, a vector
     // source and overlays, so calling it from both the toggle and the readout
@@ -137,7 +136,13 @@ export function MapShell({ markers }: MapShellProps) {
                     </BottomSheet>
                 ) : (
                     <>
-                        <aside className={styles.sidebar} aria-hidden={!panelOpen}>
+                        {/*
+                          * inert as well as aria-hidden: collapsed, the sidebar
+                          * is only slid off-screen, and its controls would
+                          * otherwise stay in the tab order with nothing visible
+                          * taking focus.
+                          */}
+                        <aside className={styles.sidebar} aria-hidden={!panelOpen} inert={!panelOpen}>
                             <ChromeContents markers={markers} onSelect={selectPlace} />
                         </aside>
                         <GithubCorner className={styles.corner} reachable={panelOpen} />
@@ -152,6 +157,7 @@ export function MapShell({ markers }: MapShellProps) {
                   */}
                 <MapPoster />
                 <div ref={containerRef} className={styles.map} />
+                <MapMarkers markers={markers} core={core} className={styles.markers} />
                 <MeasureToggle onToggle={measure.toggle} />
                 <MeasureReadout onClear={measure.clear} />
             </div>

@@ -1,33 +1,29 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 
-import { useMapCore } from '@/components/map/MapContext';
+import { toggleLayer, useHiddenLayers } from '@/components/map/layerVisibility';
 import { LAYERS, type LayerKey } from '@/lib/map/config';
+import type { Marker } from '@/lib/markers/load';
 
 import { SectionHeading } from './SectionHeading';
 
-/** Sidebar checkbox list. Toggling flips the OpenLayers layer's visibility. */
-export function LayerToggles() {
-    const core = useMapCore();
-    const [hidden, setHidden] = useState<ReadonlySet<LayerKey>>(new Set());
+interface LayerTogglesProps {
+    markers: readonly Marker[];
+}
 
-    // Re-apply visibility if the map is rebuilt (e.g. after a hot reload).
-    useEffect(() => {
-        if (!core) return;
-        for (const def of LAYERS) {
-            core.layers[def.key]?.layer.setVisible(!hidden.has(def.key));
-        }
-    }, [core, hidden]);
+/** Sidebar checkbox list. Toggling hides or shows that category's dots. */
+export function LayerToggles({ markers }: LayerTogglesProps) {
+    const hidden = useHiddenLayers();
 
-    function toggle(key: LayerKey) {
-        setHidden((prev) => {
-            const next = new Set(prev);
-            if (next.has(key)) next.delete(key);
-            else next.add(key);
-            return next;
-        });
-    }
+    // Counted from the markers rather than read off the built map, so the
+    // server-rendered HTML says "Cities 108" instead of eight zeros waiting for
+    // OpenLayers to load.
+    const counts = useMemo(() => {
+        const tally = new Map<LayerKey, number>();
+        for (const m of markers) tally.set(m.category, (tally.get(m.category) ?? 0) + 1);
+        return tally;
+    }, [markers]);
 
     return (
         <div>
@@ -46,7 +42,7 @@ export function LayerToggles() {
                         <input
                             type="checkbox"
                             checked={!hidden.has(def.key)}
-                            onChange={() => toggle(def.key)}
+                            onChange={() => toggleLayer(def.key)}
                             className="m-0 cursor-pointer accent-accent coarse:size-[18px]"
                         />
                         <span
@@ -60,7 +56,7 @@ export function LayerToggles() {
                         />
                         <span className="text-[13px] coarse:text-[15px]">{def.label}</span>
                         <span className="text-[11px] text-muted tabular-nums coarse:text-[13px]">
-                            {core?.layers[def.key]?.count ?? 0}
+                            {counts.get(def.key) ?? 0}
                         </span>
                     </label>
                 ))}

@@ -5,7 +5,7 @@ import { useSyncExternalStore } from 'react';
 // A deliberately tiny external store rather than a state library.
 //
 // The measure tool's "is active" flag is read from inside long-lived OpenLayers
-// event handlers (see useMarkerInteractions). Those handlers are registered
+// event handlers (see MapMarkers). Those handlers are registered
 // once per map instance, so reading React state through a closure would capture
 // a stale value. An external store gives them a getState() that is always
 // current, while components still subscribe reactively.

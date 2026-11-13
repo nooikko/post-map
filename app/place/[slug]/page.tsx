@@ -33,8 +33,9 @@ export default async function PlacePage({ params }: PageProps) {
         <main className={styles.page}>
             <article className={styles.sheet}>
                 <PlacePanel
-                    marker={place.marker}
-                    article={place.article}
+                    place={place}
+                    headingLevel={1}
+                    linkMode="page"
                     dismiss={
                         <Link href="/" className={styles.back} aria-label="Back to the map">
                             ×
