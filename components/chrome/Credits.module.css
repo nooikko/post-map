@@ -1,0 +1,51 @@
+/* The text inside the credits dialog. The dialog itself is TopbarDialog's. */
+
+.body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 18px 20px 22px;
+    font-family: var(--font-serif);
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--parchment);
+}
+
+.body p {
+    margin: 0;
+}
+
+.body a {
+    color: var(--gold);
+    text-decoration: none;
+}
+
+.body a:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+}
+
+@media (hover: hover) {
+    .body a:hover {
+        text-decoration: underline;
+    }
+}
+
+/* The verbatim notice: set apart so it reads as a legal notice, not blurb. */
+.notice {
+    padding: 10px 12px;
+    border-left: 2px solid var(--gold-line);
+    background: rgba(236, 227, 207, 0.04);
+    font-size: 13px;
+    color: var(--ink-muted);
+}
+
+@media (pointer: coarse) {
+    .body {
+        font-size: 15px;
+    }
+
+    .notice {
+        font-size: 14px;
+    }
+}

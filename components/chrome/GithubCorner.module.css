@@ -19,7 +19,7 @@
 
 /*
  * The anchor is a 76×76 box but only the wedge is drawn, so half of it is
- * transparent — and that half sits over the credits text. Left alone it would
+ * transparent — and that half sits over the panel's text. Left alone it would
  * swallow clicks and selections meant for the panel underneath.
  *
  * `pointer-events: none` here, `auto` on the drawn shapes, so only the visible

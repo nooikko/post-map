@@ -2,6 +2,9 @@
 
 import { PROJECT_NAME, REPO_URL } from '@/lib/attribution';
 
+import { Credits } from './Credits';
+import { MapOptions } from './MapOptions';
+
 interface TopbarProps {
     panelOpen: boolean;
     onTogglePanel: () => void;
@@ -42,12 +45,20 @@ export function Topbar({ panelOpen, onTogglePanel, panelLabel }: TopbarProps) {
                 </span>
             </h1>
             {/*
+              * Map options and credits, each a button that opens a dialog.
+              * Here rather than in the sidebar because the topbar is on screen
+              * at every viewport: which map is drawn should not hide behind the
+              * panel, and the credits read as a place to look something up,
+              * not as a column of small print beside the map. The first button
+              * carries the ml-auto that pins everything from here on to the
+              * right.
+              */}
+            <MapOptions className="ml-auto" />
+            <Credits />
+            {/*
               * Only while the panel is closed, so the same destination is never
               * on screen twice: open, the link is the sidebar's GitHub corner
-              * on desktop and a line in Credits on touch.
-              *
-              * ml-auto rather than a spacer element, so it stays pinned right
-              * whatever the title runs to.
+              * on desktop. The credits dialog carries it at every size.
               */}
             {!panelOpen && (
                 <a
@@ -56,7 +67,7 @@ export function Topbar({ panelOpen, onTogglePanel, panelLabel }: TopbarProps) {
                     rel="noopener noreferrer"
                     aria-label={`${PROJECT_NAME} source on GitHub`}
                     title={`${PROJECT_NAME} source on GitHub`}
-                    className="ml-auto inline-flex cursor-pointer items-center gap-1.5 rounded border border-transparent px-2 py-1.5 text-panel-fg coarse:min-h-(--touch-target-sm) coarse:px-3 hover:bg-white/6 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+                    className="inline-flex cursor-pointer items-center gap-1.5 rounded border border-transparent px-2 py-1.5 text-panel-fg coarse:min-h-(--touch-target-sm) coarse:px-3 hover:bg-white/6 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
                 >
                     {/* Inline path, not a remote asset: the CSP is img-src 'self' data:. */}
                     <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" fill="currentColor">

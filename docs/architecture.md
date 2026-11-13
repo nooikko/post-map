@@ -24,7 +24,7 @@ app/
 components/
   map/                        MapShell, poster, markers, measure tool
   place/                      PlacePanel, InfoboxRail, ArticleCredit
-  chrome/                     Topbar, bottom sheet, search, layers, about, credits
+  chrome/                     Topbar, map options, credits, bottom sheet, search, layers, about
   seo/                        JsonLd
 lib/
   map/                        projection, tile grid, geometry, styles
@@ -32,7 +32,7 @@ lib/
   seo/                        every string a search engine is told, structured data
   markers/  place/  settings/  pointer.ts
 public/
-  tiles/                      z0-z6 WebP pyramid (1296 tiles)
+  tiles/v2/                   enhanced/ z0-z6 and original/ z0-z4 WebP pyramids
   faerun-map.webp             the same map flat, behind the canvas
   faerun-map-card.jpg         the same map again, as the 1200x630 social card
   data/Faerun/                8 GeoJSON categories + 310 mirrored articles
@@ -55,8 +55,14 @@ image dimensions (4763 × 3185), zoom range, the tile URL template, and
 `METERS_PER_PIXEL` (1287.473), the scale the distance tool measures against.
 Changing any of it means regenerating tiles.
 
-Tiles are a z0–z6 pyramid of 512px @2x WebP over a 256px logical grid, served
-from `/tiles/{z}/{x}/{y}.webp` with a one-year immutable cache. They are
+Tiles are 512px @2x WebP over a 256px logical grid, served from
+`/tiles/v2/{set}/{z}/{x}/{y}.webp` with a one-year immutable cache; the `v2`
+segment (`TILE_VERSION`) is what changes when the pyramids are regenerated,
+and it is the only path under `/tiles/` that gets the long cache. There are two sets
+on the same grid (`TILE_SETS` in `lib/map/config.ts`): `enhanced`, z0–z6, and
+`original`, z0–z4, which the view enlarges past its deepest level. The reader
+picks between them in the map options dialog
+(`components/chrome/MapOptions.tsx`, `lib/settings/mapVersion.ts`). Both are
 committed rather than generated at build time; see
 [`tile-pipeline.md`](tile-pipeline.md).
 
@@ -85,8 +91,8 @@ activation always does. Layer visibility is shared through
 
 ## The chrome
 
-`ChromeContents.tsx` is the controls themselves — search, units, layers, about,
-credits — with no opinion about what holds them. The desktop sidebar and the
+`ChromeContents.tsx` is the controls themselves — search, units, layers, about
+— with no opinion about what holds them. The desktop sidebar and the
 touch bottom sheet each render exactly one of those, so the two layouts cannot
 drift into offering different things.
 
@@ -243,10 +249,10 @@ is run by hand when the thing it derives from changes.
 | `scripts/gen-notice.mjs` | Generate `NOTICE` from `lib/attribution.ts` + `lib/licence-scope.ts` |
 | `scripts/gen-reuse.mjs` | Generate `REUSE.toml` and `LICENSES/LicenseRef-*.txt` from the same two |
 | `scripts/fetch-redirect-targets.ts` | Refresh wiki articles or fetch missing redirect targets |
-| `scripts/gen-map-images.mjs` | Composite `public/faerun-map*` from the tile pyramid |
+| `scripts/gen-map-images.mjs` | Composite `public/faerun-map*` from the enhanced tiles |
 
-`gen-map-images.mjs` imports nothing from `lib/` and restates the four constants
-it needs from `lib/map/config.ts`. That copy is the first thing to check if it
+`gen-map-images.mjs` imports nothing from `lib/` and restates the constants and
+the tile path it needs from `lib/map/config.ts`. That copy is the first thing to check if it
 ever produces a mis-cropped image.
 
 `lib/wiki/mirror.ts` holds what the mirror's reader and writer must agree on:
@@ -261,8 +267,9 @@ will never follow.
 UI shows, and `NOTICE` is generated from it — `pnpm licence:check` fails if the
 two have drifted. The per-article CC BY-SA credit renders from
 `components/place/ArticleCredit.tsx` on every article view; the WotC fan-content
-notice renders from `components/chrome/Credits.tsx`. Both are licence
-conditions, not decoration.
+notice renders from `components/chrome/Credits.tsx`, a dialog opened from the
+topbar whose text is in the server-rendered HTML whether or not it is open.
+Both are licence conditions, not decoration.
 
 `lib/licence-scope.ts` is the parallel source of truth for *which paths* the MIT
 licence does not reach. It feeds `NOTICE`, `REUSE.toml`, and the `LicenseRef-`
