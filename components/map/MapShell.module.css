@@ -15,7 +15,7 @@
     border-right: 1px solid var(--border);
     z-index: 450;
     padding: 16px;
-    /* Clears the GitHub corner, so the credits never run underneath it. */
+    /* Clears the GitHub corner, so the last of the text never runs underneath it. */
     padding-bottom: 92px;
     overflow-y: auto;
     transition: transform 180ms ease;

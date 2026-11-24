@@ -1,5 +1,7 @@
 import type { NextConfig } from 'next';
 
+import { TILE_SETS, TILE_VERSION } from './lib/map/config';
+
 /**
  * Content-Security-Policy.
  *
@@ -63,7 +65,7 @@ const CSP = [
 ].join('; ');
 
 // Applied to every route. Next merges headers across matching entries, so the
-// cache rules below still land on /tiles and /data.
+// cache rules below still land on the tiles and /data.
 const SECURITY_HEADERS = [
     { key: 'Content-Security-Policy', value: CSP },
     { key: 'X-Content-Type-Options', value: 'nosniff' },
@@ -71,6 +73,8 @@ const SECURITY_HEADERS = [
     { key: 'X-Frame-Options', value: 'DENY' },
     { key: 'Permissions-Policy', value: 'geolocation=(), camera=(), microphone=()' },
 ];
+
+const TILE_CACHE_SOURCE = `/tiles/${TILE_VERSION}/:set(${Object.keys(TILE_SETS).join('|')})/:z(\\d+)/:x(\\d+)/:y(\\d+).webp`;
 
 const nextConfig: NextConfig = {
     async headers() {
@@ -80,9 +84,17 @@ const nextConfig: NextConfig = {
                 headers: SECURITY_HEADERS,
             },
             {
-                // Tiles are content-addressed by {z}/{x}/{y} and only change when
-                // the pyramid is regenerated, which changes the deployment.
-                source: '/tiles/:path*',
+                // Only the current tile version is immutable. The rule used to
+                // cover all of /tiles/, which also stamped a one-year immutable
+                // cache on every 404 there: a browser that asked for a tile
+                // the deployment did not have would not ask again for a year.
+                // Addresses outside this pattern, earlier versions included,
+                // fall back to the host's revalidate-every-time default.
+                //
+                // An address inside the pattern that has no file (a level past
+                // a set's deepest) is still cached as missing, which is right:
+                // a version's contents never change, so it stays missing.
+                source: TILE_CACHE_SOURCE,
                 headers: [
                     { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
                 ],

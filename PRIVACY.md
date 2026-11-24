@@ -2,7 +2,7 @@
 
 The privacy policy is a page on the site itself:
 **https://postmap.findquinn.com/privacy** — also reachable from the
-*Credits & licence* block at the bottom of the sidebar.
+*Credits* button in the top bar.
 
 That page is the canonical wording. It is not reproduced here, because a second
 copy is a copy that drifts; this file exists so that anyone reading the

@@ -15,9 +15,8 @@ export const MAX_ZOOM = 6;
 // for sharpness when the user wheels in close.
 export const NATIVE_ZOOM = Math.ceil(Math.log2(Math.max(IMG_W, IMG_H) / 256));
 
-// Scale from the original map. Pocket Plane Group's Faerûn map at this
-// resolution measures 1287.473 real-world meters per native-resolution
-// image pixel.
+// The map's scale: real-world metres per native-resolution image pixel. The
+// distance tool and the "about this map" figures both measure against it.
 export const METERS_PER_PIXEL = 1287.473;
 
 /**
@@ -26,9 +25,57 @@ export const METERS_PER_PIXEL = 1287.473;
  */
 export const LAYER_Z = { tiles: 0, markers: 1, measure: 2 } as const;
 
-// Root-absolute: Next resolves relative URLs against the current route, so
-// `/place/waterdeep` would otherwise look for tiles under `/place/tiles/...`.
-export const TILE_URL = '/tiles/{z}/{x}/{y}.webp';
+/**
+ * The two versions of the map a reader can choose between (the choice itself
+ * lives in lib/settings/mapVersion.ts, the wording in
+ * components/chrome/MapOptions.tsx).
+ *
+ * Both are cut from the same picture on the same grid, so markers, distances
+ * and the view are untouched by a switch.
+ */
+export type MapVersion = 'enhanced' | 'original';
+
+export interface TileSet {
+    /**
+     * Root-absolute: Next resolves relative URLs against the current route, so
+     * `/place/waterdeep` would otherwise look for tiles under
+     * `/place/tiles/...`.
+     *
+     * TILE_VERSION is the cache key. Tiles are served immutable for a year
+     * (next.config.ts), so a regenerated pyramid has to arrive at a new
+     * address or returning visitors keep the old one.
+     */
+    url: string;
+    /**
+     * Deepest level this set has tiles for. Past it the view keeps zooming to
+     * MAX_ZOOM and OpenLayers enlarges this level, which for `original` is the
+     * point: its deepest level is the source picture pixel for pixel, and
+     * there is nothing truer to show beyond it.
+     */
+    maxZoom: number;
+}
+
+/**
+ * The folder under /tiles/ that holds the current pyramids. Bump it, and move
+ * the folders in public/tiles/ with it, whenever any tile's pixels change.
+ *
+ * It is the only address next.config.ts marks immutable. Every other path
+ * under /tiles/, including the addresses of earlier versions, is answered
+ * without a long cache, so a tile that is missing is never remembered as
+ * missing.
+ */
+export const TILE_VERSION = 'v2';
+
+export const TILE_SETS: Readonly<Record<MapVersion, TileSet>> = {
+    enhanced: { url: `/tiles/${TILE_VERSION}/enhanced/{z}/{x}/{y}.webp`, maxZoom: MAX_ZOOM },
+    original: { url: `/tiles/${TILE_VERSION}/original/{z}/{x}/{y}.webp`, maxZoom: NATIVE_ZOOM - 1 },
+};
+
+export const DEFAULT_MAP_VERSION: MapVersion = 'enhanced';
+
+export function isMapVersion(value: unknown): value is MapVersion {
+    return value === 'enhanced' || value === 'original';
+}
 
 export type LayerKey =
     | 'Ports'

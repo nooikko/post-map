@@ -14,6 +14,7 @@ import { Topbar } from '@/components/chrome/Topbar';
 import { useCoarsePointer } from '@/components/chrome/useCoarsePointer';
 import type { MapCore } from '@/lib/map/create';
 import type { Marker } from '@/lib/markers/load';
+import { getMapVersion, useMapVersion } from '@/lib/settings/mapVersion';
 
 import { MapContext } from './MapContext';
 import { MapMarkers } from './MapMarkers';
@@ -61,7 +62,10 @@ export function MapShell({ markers }: MapShellProps) {
         void (async () => {
             const { createMapCore } = await import('@/lib/map/create');
             if (disposed) return;
-            built = createMapCore(el);
+            // Read at build time rather than taken as a dependency: a change
+            // of version swaps the tile source on the live map (below), it
+            // does not rebuild the map.
+            built = createMapCore(el, getMapVersion());
             setCore(built);
         })();
 
@@ -71,6 +75,13 @@ export function MapShell({ markers }: MapShellProps) {
             setCore(null);
         };
     }, []);
+
+    // The version chosen in the map options dialog. Also runs once on build,
+    // where it is a no-op: the map was created with this same value.
+    const mapVersion = useMapVersion();
+    useEffect(() => {
+        core?.setMapVersion(mapVersion);
+    }, [core, mapVersion]);
 
     // Keep the canvas sized to its container.
     useEffect(() => {
